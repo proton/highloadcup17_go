@@ -48,7 +48,12 @@ func (entity *User) Update(data *JsonData, lock bool) {
 		}
 	}
 	if denormolize_in_visits {
-		//
+		visits := entity.Visits(nil, nil, nil, nil)
+		for _, visit := range visits {
+			visit.UserGender = entity.Gender
+			visit.UserBirthDate = entity.BirthDate
+			visit.Mutex.RUnlock()
+		}
 	}
 	if lock {
 		entity.Mutex.Unlock()
@@ -105,13 +110,13 @@ func (entity *User) Visits(fromDate *uint32, toDate *uint32, country *string, to
 func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) {
 	entity.Mutex.RLock()
 
-	filteredVisits := entity.Visits(fromDate, toDate, country, toDistance)
+	visits := entity.Visits(fromDate, toDate, country, toDistance)
 
-	sort.Slice(filteredVisits, func(i, j int) bool { return filteredVisits[i].VisitedAt < filteredVisits[j].VisitedAt })
+	sort.Slice(visits, func(i, j int) bool { return visits[i].VisitedAt < visits[j].VisitedAt })
 
 	w.Write([]byte("{\"visits\": ["))
 	first := true
-	for _, visit := range filteredVisits {
+	for _, visit := range visits {
 		if first == false {
 			w.Write([]byte(","))
 		}
