@@ -14,11 +14,11 @@ type Visit struct {
 	VisitedAt        uint32       `json:"visited_at"`
 	Mark             uint32       `json:"mark"`
 	Mutex            sync.RWMutex `json:"-"`
-	LocationPlace    string
-	LocationCountry  string
-	LocationDistance uint32
-	UserBirthDate    int32
-	UserGender       string
+	LocationPlace    string       `json:"-"`
+	LocationCountry  string       `json:"-"`
+	LocationDistance uint32       `json:"-"`
+	UserBirthDate    int32        `json:"-"`
+	UserGender       string       `json:"-"`
 }
 
 type VisitView struct {

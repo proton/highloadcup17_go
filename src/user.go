@@ -9,14 +9,14 @@ import (
 )
 
 type User struct {
-	Id          uint32       `json:"id"`
-	Email       string       `json:"email"`
-	FirstName   string       `json:"first_name"`
-	LastName    string       `json:"last_name"`
-	Gender      string       `json:"gender"`
-	BirthDate   int32        `json:"birth_date"`
-	Mutex       sync.RWMutex `json:"-"`
-	VisitIdsMap map[uint32]bool
+	Id          uint32          `json:"id"`
+	Email       string          `json:"email"`
+	FirstName   string          `json:"first_name"`
+	LastName    string          `json:"last_name"`
+	Gender      string          `json:"gender"`
+	BirthDate   int32           `json:"birth_date"`
+	Mutex       sync.RWMutex    `json:"-"`
+	VisitIdsMap map[uint32]bool `json:"-"`
 }
 
 type UsersRepo struct {

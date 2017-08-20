@@ -8,13 +8,13 @@ import (
 )
 
 type Location struct {
-	Id          uint32       `json:"id"`
-	Place       string       `json:"place"`
-	Country     string       `json:"country"`
-	City        string       `json:"city"`
-	Distance    uint32       `json:"distance"`
-	Mutex       sync.RWMutex `json:"-"`
-	VisitIdsMap map[uint32]bool
+	Id          uint32          `json:"id"`
+	Place       string          `json:"place"`
+	Country     string          `json:"country"`
+	City        string          `json:"city"`
+	Distance    uint32          `json:"distance"`
+	Mutex       sync.RWMutex    `json:"-"`
+	VisitIdsMap map[uint32]bool `json:"-"`
 }
 
 type LocationsRepo struct {
