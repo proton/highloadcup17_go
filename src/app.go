@@ -6,13 +6,14 @@ import (
 	"archive/zip"
 	"encoding/json"
 	"flag"
-	// "fmt"
+	"fmt"
 	// "github.com/hashicorp/go-memdb"
 	"github.com/valyala/fasthttp"
 	"io/ioutil"
 	"log"
 	"strings"
 	// "time"
+	"runtime/debug" //TODO:
 	"strconv"
 )
 
@@ -39,6 +40,7 @@ func entity_repo(entity_kind string) EntityRepo {
 }
 
 func loadInitialData() {
+	fmt.Println("DataLoading: starting")
 	r, err := zip.OpenReader("/tmp/data/data.zip")
 	if err != nil {
 		log.Fatal(err)
@@ -49,6 +51,7 @@ func loadInitialData() {
 		if !strings.Contains(f.Name, ".json") {
 			continue
 		}
+		fmt.Println("DataLoading: loading", f.Name)
 		arr := strings.Split(f.Name, "_")
 		entity_kind := arr[0]
 
@@ -66,6 +69,7 @@ func loadInitialData() {
 }
 
 func startWebServer() {
+	fmt.Println("Webserver: starting")
 	h := requestHandler
 	// h = fasthttp.CompressHandler(h)
 
@@ -87,17 +91,20 @@ func main() {
 
 func requestHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("text/plain; charset=utf8")
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintf(ctx, "\n\nWEB SERVER ERROR: %s\n%s\n", r, debug.Stack())
+		}
+	}()
 
 	path := strings.Split(string(ctx.Path()), "/")
 	http_method := string(ctx.Method())
 	path_len := len(path)
 	entity_kind := path[1]
-	var entity_id_int, _ = strconv.Atoi(path[2])
-	entity_id := uint32(entity_id_int)
+	repo := entity_repo(entity_kind)
 
 	if path_len == 3 {
-		repo := entity_repo(entity_kind)
-		var entity, ok = repo.Find(entity_id)
+		var entity, ok = find_entity(repo, &path[2])
 		if ok == true {
 			if http_method == "GET" {
 				renderEntity(ctx, entity)
@@ -109,22 +116,104 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	} else if path_len == 4 {
 		if http_method == "GET" {
 			if entity_kind == "users" && path[3] == "visits" {
-				// TODO:
+				var user, ok = find_user(&path[2])
+				if ok == true {
+					processUserVisits(ctx, user)
+					return
+				}
 			}
 			if entity_kind == "locations" && path[3] == "avg" {
 				// TODO:
 			}
 		} else {
 			if path[3] == "new" {
-				repo := entity_repo(entity_kind)
 				processEntityCreate(ctx, repo)
 				return
 			}
 		}
 	}
 	render404(ctx)
+}
 
-	// fmt.Fprintf(ctx, "Request method is %q\n", ctx.Method())
+func find_entity(repo EntityRepo, entity_id_str *string) (Entity, bool) {
+	entity_id_int, error := strconv.Atoi(*entity_id_str)
+	if error == nil {
+		entity_id := uint32(entity_id_int)
+		return repo.FindEntity(entity_id)
+	}
+	return nil, false
+}
+
+func find_user(entity_id_str *string) (*User, bool) {
+	entity_id_int, error := strconv.Atoi(*entity_id_str)
+	if error == nil {
+		entity_id := uint32(entity_id_int)
+		return Users.Find(entity_id)
+	}
+	return nil, false
+}
+
+func extractUintParam(ctx *fasthttp.RequestCtx, key string) (*uint32, bool) {
+	param := ctx.QueryArgs().Peek(key)
+	if param == nil {
+		return nil, true
+	}
+	param_int, err := strconv.Atoi(string(param))
+	if err != nil {
+		return nil, false
+	}
+	param_uint := uint32(param_int)
+	return &param_uint, true
+}
+
+func extractStringParam(ctx *fasthttp.RequestCtx, key string) (*string, bool) {
+	param := ctx.QueryArgs().Peek(key)
+	if param == nil {
+		return nil, true
+	}
+	param_string := string(param)
+	return &param_string, true
+}
+
+func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
+	fromDate, ok := extractUintParam(ctx, "fromDate")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	toDate, ok := extractUintParam(ctx, "toDate")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	country, ok := extractStringParam(ctx, "country")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	toDistance, ok := extractUintParam(ctx, "toDistance")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+
+	user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
+
+	// fmt.Fprintf(ctx, "myVariable = %#v \n", arg_fromDate)
+	// if arg_fromDate == nil {
+	// 	fmt.Fprintf(ctx, "arr\n")
+	// }
+
+	// query_string := string(ctx.QueryArgs())
+	// query_args := strings.Split(query_string, "&")
+	// for _, query_arg := range r.File {
+	// 	query_key, query_string := strings.Split(query_string, "=")
+	// 	if len(query_string) == 0 {
+	// 		render400(ctx)
+	// 		return
+	// 	}
+	// }
+
 	// fmt.Fprintf(ctx, "RequestURI is %q\n", ctx.RequestURI())
 	// fmt.Fprintf(ctx, "Requested path is %q\n", ctx.Path())
 	// fmt.Fprintf(ctx, "Host is %q\n", ctx.Host())
@@ -143,7 +232,7 @@ func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 	if err != nil {
 		render400(ctx)
 	} else {
-		entity.Update(&data)
+		entity.Update(&data, true)
 		renderEmpty(ctx)
 	}
 }
