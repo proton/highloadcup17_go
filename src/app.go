@@ -214,6 +214,10 @@ func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
 		render400(ctx)
 		return
 	}
+	if gender != nil && *gender != "m" && *gender != "f" {
+		render400(ctx)
+		return
+	}
 
 	location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
 }

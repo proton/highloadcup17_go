@@ -28,6 +28,7 @@ func (entity *User) Update(data *JsonData, lock bool) {
 	if lock {
 		entity.Mutex.Lock()
 	}
+	denormolize_in_visits := false
 	for key, value := range *data {
 		switch key {
 		case "id":
@@ -40,24 +41,15 @@ func (entity *User) Update(data *JsonData, lock bool) {
 			entity.LastName = value.(string)
 		case "gender":
 			entity.Gender = value.(string)
+			denormolize_in_visits = true
 		case "birth_date":
 			entity.BirthDate = int32(value.(float64))
-			// bday := time.Unix(int64(entity.BirthDate), 0)
-			// now := time.Now()
-			// fmt.Println("Time now is:", now)
-			// age := now.Year() - bday.Year()
-			// if now.Month() < bday.Month() {
-			//  age = age - 1
-			// } else if (now.Month() == bday.Month()) && (now.Day() < bday.Day()) {
-			//  age = age - 1
-			// }
-			// fmt.Println("User:", (*data)["id"])
-			// fmt.Println("Age is:", age)
-
-			// entity.Age = uint32(age)
+			denormolize_in_visits = true
 		}
 	}
-	//TODO: denormolize in Visits
+	if denormolize_in_visits {
+		//
+	}
 	if lock {
 		entity.Mutex.Unlock()
 	}
@@ -80,39 +72,40 @@ func (entity *User) VisitIds() []uint32 {
 	return ids
 }
 
+func (entity *User) Visits(fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) []*Visit {
+	visits, _ := Visits.FindAll(entity.VisitIds())
+	filteredVisits := make([]*Visit, 0, len(visits))
+	for _, visit := range visits {
+		visit.Mutex.RLock()
+		if visit.UserId != entity.Id {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		if fromDate != nil && visit.VisitedAt < *fromDate {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		if toDate != nil && visit.VisitedAt > *toDate {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		if country != nil && visit.LocationCountry != *country {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		if toDistance != nil && visit.LocationDistance >= *toDistance {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		filteredVisits = append(filteredVisits, visit)
+	}
+	return filteredVisits
+}
+
 func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) {
 	entity.Mutex.RLock()
 
-	visits, _ := Visits.FindAll(entity.VisitIds())
-	var filteredVisits []*Visit
-	if fromDate == nil && toDate == nil && country == nil && toDistance == nil {
-		filteredVisits = visits
-		for _, visit := range visits {
-			visit.Mutex.RLock()
-		}
-	} else {
-		filteredVisits = make([]*Visit, 0, len(visits))
-		for _, visit := range visits {
-			visit.Mutex.RLock()
-			if fromDate != nil && visit.VisitedAt < *fromDate {
-				visit.Mutex.RUnlock()
-				continue
-			}
-			if toDate != nil && visit.VisitedAt > *toDate {
-				visit.Mutex.RUnlock()
-				continue
-			}
-			if country != nil && visit.LocationCountry != *country {
-				visit.Mutex.RUnlock()
-				continue
-			}
-			if toDistance != nil && visit.LocationDistance >= *toDistance {
-				visit.Mutex.RUnlock()
-				continue
-			}
-			filteredVisits = append(filteredVisits, visit)
-		}
-	}
+	filteredVisits := entity.Visits(fromDate, toDate, country, toDistance)
 
 	sort.Slice(filteredVisits, func(i, j int) bool { return filteredVisits[i].VisitedAt < filteredVisits[j].VisitedAt })
 

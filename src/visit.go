@@ -70,9 +70,6 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 
 	if sync_user {
-		// if entity.UserId == 84 {
-		// 	fmt.Println("JsonData:", data)
-		// }
 		user, _ := Users.Find(entity.UserId)
 		if lock {
 			user.Mutex.Lock()

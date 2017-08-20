@@ -63,13 +63,9 @@ func (entity *Location) VisitIds() []uint32 {
 	return ids
 }
 
-func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
-	entity.Mutex.RLock()
-
+func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
 	visits, _ := Visits.FindAll(entity.VisitIds())
-
-	marks_count := 0
-	marks_sum := uint32(0)
+	filteredVisits := make([]*Visit, 0, len(visits))
 	for _, visit := range visits {
 		visit.Mutex.RLock()
 		if fromDate != nil && visit.VisitedAt < *fromDate {
@@ -81,25 +77,52 @@ func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uin
 			continue
 		}
 		// TODO: fromAge, toAge
+		// bday := time.Unix(int64(entity.BirthDate), 0)
+		// now := time.Now()
+		// fmt.Println("Time now is:", now)
+		// age := now.Year() - bday.Year()
+		// if now.Month() < bday.Month() {
+		//  age = age - 1
+		// } else if (now.Month() == bday.Month()) && (now.Day() < bday.Day()) {
+		//  age = age - 1
+		// }
+		// fmt.Println("User:", (*data)["id"])
+		// fmt.Println("Age is:", age)
+
+		// entity.Age = uint32(age)
 		if gender != nil && visit.UserGender != *gender {
 			visit.Mutex.RUnlock()
 			continue
 		}
-		marks_sum += visit.Mark
-		marks_count += 1
-		visit.Mutex.RUnlock()
+		filteredVisits = append(filteredVisits, visit)
+	}
+	return filteredVisits
+}
+
+func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
+	entity.Mutex.RLock()
+
+	filteredVisits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
+	if len(filteredVisits) == 0 {
+		w.Write([]byte("{\"avg\": 0}"))
+	} else {
+		marks_count := 0
+		marks_sum := uint32(0)
+
+		for _, visit := range filteredVisits {
+			marks_sum += visit.Mark
+			marks_count += 1
+			visit.Mutex.RUnlock()
+		}
+
+		avg := float64(marks_sum) / float64(marks_count)
+		avg_str := fmt.Sprintf("%.5f", avg)
+
+		w.Write([]byte("{\"avg\": "))
+		w.Write([]byte(avg_str))
+		w.Write([]byte("}"))
 	}
 	entity.Mutex.RUnlock()
-
-	avg_str := "0"
-	if marks_count > 0 {
-		avg := float64(marks_sum) / float64(marks_count)
-		avg_str = fmt.Sprintf("%.5f", avg)
-	}
-
-	w.Write([]byte("{\"avg\": "))
-	w.Write([]byte(avg_str))
-	w.Write([]byte("}"))
 }
 
 func NewLocationsRepo() LocationsRepo {
