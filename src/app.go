@@ -1,7 +1,5 @@
 package main
 
-// https://github.com/sat2707/hlcupdocs
-
 import (
 	"archive/zip"
 	"encoding/json"
@@ -13,6 +11,7 @@ import (
 	"log"
 	"strings"
 	// "time"
+	// "github.com/pkg/profile"
 	"runtime/debug" //TODO:
 	"strconv"
 )
@@ -87,6 +86,7 @@ func main() {
 	Visits = NewVisitsRepo()
 
 	loadInitialData()
+	// defer profile.Start().Stop()
 	startWebServer()
 }
 
@@ -270,14 +270,17 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
 	entity.to_json(ctx)
+	ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
 
 func render400(ctx *fasthttp.RequestCtx) {
 	ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+	ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
 
 func render404(ctx *fasthttp.RequestCtx) {
 	ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+	ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
 
 func renderEmpty(ctx *fasthttp.RequestCtx) {
