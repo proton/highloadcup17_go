@@ -105,33 +105,35 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	repo := entity_repo(entity_kind)
 
 	if path_len == 3 {
-		var entity, ok = find_entity(repo, &path[2])
-		if ok == true {
-			if http_method == "GET" {
-				renderEntity(ctx, entity)
-			} else {
-				processEntityUpdate(ctx, entity)
-			}
-			return
-		}
-	} else if path_len == 4 {
+		// var entity, ok = find_entity(repo, &path[2])
+		// if ok == true {
 		if http_method == "GET" {
-			if entity_kind == "users" && path[3] == "visits" {
-				var user, ok = find_user(&path[2])
-				if ok == true {
-					processUserVisits(ctx, user)
-					return
-				}
-			} else if entity_kind == "locations" && path[3] == "avg" {
-				var location, ok = find_location(&path[2])
-				if ok == true {
-					processLocationAvgs(ctx, location)
-					return
-				}
+			var entity, ok = find_entity(repo, &path[2])
+			if ok == true {
+				renderEntity(ctx, entity)
+				return
 			}
+		} else if path[2] == "new" {
+			processEntityCreate(ctx, repo)
+			return
 		} else {
-			if path[3] == "new" {
-				processEntityCreate(ctx, repo)
+			var entity, ok = find_entity(repo, &path[2])
+			if ok == true {
+				processEntityUpdate(ctx, entity)
+				return
+			}
+		}
+	} else if path_len == 4 && http_method == "GET" {
+		if entity_kind == "users" && path[3] == "visits" {
+			var user, ok = find_user(&path[2])
+			if ok == true {
+				processUserVisits(ctx, user)
+				return
+			}
+		} else if entity_kind == "locations" && path[3] == "avg" {
+			var location, ok = find_location(&path[2])
+			if ok == true {
+				processLocationAvgs(ctx, location)
 				return
 			}
 		}
