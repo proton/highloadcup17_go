@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"sync"
 )
@@ -60,6 +61,45 @@ func (entity *Location) VisitIds() []uint32 {
 		i++
 	}
 	return ids
+}
+
+func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
+	entity.Mutex.RLock()
+
+	visits, _ := Visits.FindAll(entity.VisitIds())
+
+	marks_count := 0
+	marks_sum := uint32(0)
+	for _, visit := range visits {
+		visit.Mutex.RLock()
+		if fromDate != nil && visit.VisitedAt < *fromDate {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		if toDate != nil && visit.VisitedAt > *toDate {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		// TODO: fromAge, toAge
+		if gender != nil && visit.UserGender != *gender {
+			visit.Mutex.RUnlock()
+			continue
+		}
+		marks_sum += visit.Mark
+		marks_count += 1
+		visit.Mutex.RUnlock()
+	}
+	entity.Mutex.RUnlock()
+
+	avg_str := "0"
+	if marks_count > 0 {
+		avg := float64(marks_sum) / float64(marks_count)
+		avg_str = fmt.Sprintf("%.5f", avg)
+	}
+
+	w.Write([]byte("{\"avg\": "))
+	w.Write([]byte(avg_str))
+	w.Write([]byte("}"))
 }
 
 func NewLocationsRepo() LocationsRepo {

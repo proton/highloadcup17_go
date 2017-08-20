@@ -92,7 +92,6 @@ func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint3
 		}
 	} else {
 		filteredVisits = make([]*Visit, 0, len(visits))
-		i := 0
 		for _, visit := range visits {
 			visit.Mutex.RLock()
 			if fromDate != nil && visit.VisitedAt < *fromDate {
@@ -111,8 +110,7 @@ func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint3
 				visit.Mutex.RUnlock()
 				continue
 			}
-			filteredVisits[i] = visit
-			i += 1
+			filteredVisits = append(filteredVisits, visit)
 		}
 	}
 

@@ -122,9 +122,12 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 					processUserVisits(ctx, user)
 					return
 				}
-			}
-			if entity_kind == "locations" && path[3] == "avg" {
-				// TODO:
+			} else if entity_kind == "locations" && path[3] == "avg" {
+				var location, ok = find_location(&path[2])
+				if ok == true {
+					processLocationAvgs(ctx, location)
+					return
+				}
 			}
 		} else {
 			if path[3] == "new" {
@@ -154,6 +157,15 @@ func find_user(entity_id_str *string) (*User, bool) {
 	return nil, false
 }
 
+func find_location(entity_id_str *string) (*Location, bool) {
+	entity_id_int, error := strconv.Atoi(*entity_id_str)
+	if error == nil {
+		entity_id := uint32(entity_id_int)
+		return Locations.Find(entity_id)
+	}
+	return nil, false
+}
+
 func extractUintParam(ctx *fasthttp.RequestCtx, key string) (*uint32, bool) {
 	param := ctx.QueryArgs().Peek(key)
 	if param == nil {
@@ -174,6 +186,36 @@ func extractStringParam(ctx *fasthttp.RequestCtx, key string) (*string, bool) {
 	}
 	param_string := string(param)
 	return &param_string, true
+}
+
+func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
+	fromDate, ok := extractUintParam(ctx, "fromDate")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	toDate, ok := extractUintParam(ctx, "toDate")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	fromAge, ok := extractUintParam(ctx, "fromAge")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	toAge, ok := extractUintParam(ctx, "toAge")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+	gender, ok := extractStringParam(ctx, "gender")
+	if ok == false {
+		render400(ctx)
+		return
+	}
+
+	location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
 }
 
 func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
@@ -199,32 +241,6 @@ func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 	}
 
 	user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
-
-	// fmt.Fprintf(ctx, "myVariable = %#v \n", arg_fromDate)
-	// if arg_fromDate == nil {
-	// 	fmt.Fprintf(ctx, "arr\n")
-	// }
-
-	// query_string := string(ctx.QueryArgs())
-	// query_args := strings.Split(query_string, "&")
-	// for _, query_arg := range r.File {
-	// 	query_key, query_string := strings.Split(query_string, "=")
-	// 	if len(query_string) == 0 {
-	// 		render400(ctx)
-	// 		return
-	// 	}
-	// }
-
-	// fmt.Fprintf(ctx, "RequestURI is %q\n", ctx.RequestURI())
-	// fmt.Fprintf(ctx, "Requested path is %q\n", ctx.Path())
-	// fmt.Fprintf(ctx, "Host is %q\n", ctx.Host())
-	// fmt.Fprintf(ctx, "Query string is %q\n", ctx.QueryArgs())
-	// fmt.Fprintf(ctx, "User-Agent is %q\n", ctx.UserAgent())
-	// fmt.Fprintf(ctx, "Connection has been established at %s\n", ctx.ConnTime())
-	// fmt.Fprintf(ctx, "Request has been started at %s\n", ctx.Time())
-	// fmt.Fprintf(ctx, "Serial request number for the current connection is %d\n", ctx.ConnRequestNum())
-	// fmt.Fprintf(ctx, "Your ip is %q\n\n", ctx.RemoteIP())
-	// fmt.Fprintf(ctx, "Raw request is:\n---CUT---\n%s\n---CUT---", &ctx.Request)
 }
 
 func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
