@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sync"
+	"time"
 )
 
 type Location struct {
@@ -66,6 +67,7 @@ func (entity *Location) VisitIds() []uint32 {
 func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
 	visits, _ := Visits.FindAll(entity.VisitIds())
 	filteredVisits := make([]*Visit, 0, len(visits))
+	now := int32(time.Now().Unix())
 	for _, visit := range visits {
 		visit.Mutex.RLock()
 		if fromDate != nil && visit.VisitedAt < *fromDate {
@@ -76,20 +78,18 @@ func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32
 			visit.Mutex.RUnlock()
 			continue
 		}
-		// TODO: fromAge, toAge
-		// bday := time.Unix(int64(entity.BirthDate), 0)
-		// now := time.Now()
-		// fmt.Println("Time now is:", now)
-		// age := now.Year() - bday.Year()
-		// if now.Month() < bday.Month() {
-		//  age = age - 1
-		// } else if (now.Month() == bday.Month()) && (now.Day() < bday.Day()) {
-		//  age = age - 1
-		// }
-		// fmt.Println("User:", (*data)["id"])
-		// fmt.Println("Age is:", age)
-
-		// entity.Age = uint32(age)
+		if fromAge != nil || toAge != nil {
+			age_ts := now - visit.UserBirthDate
+			age := time.Unix(age_ts).Year()
+			if fromAge != nil && age < fromAge {
+				visit.Mutex.RUnlock()
+				continue
+			}
+			if toAge != nil && age > toAge {
+				visit.Mutex.RUnlock()
+				continue
+			}
+		}
 		if gender != nil && visit.UserGender != *gender {
 			visit.Mutex.RUnlock()
 			continue
