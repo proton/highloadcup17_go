@@ -91,7 +91,7 @@ func main() {
 }
 
 func requestHandler(ctx *fasthttp.RequestCtx) {
-	ctx.SetContentType("text/plain; charset=utf8")
+	// ctx.SetContentType("text/plain; charset=utf8")
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Fprintf(ctx, "\n\nWEB SERVER ERROR: %s\n%s\n", r, debug.Stack())
@@ -281,5 +281,6 @@ func render404(ctx *fasthttp.RequestCtx) {
 }
 
 func renderEmpty(ctx *fasthttp.RequestCtx) {
-	ctx.Write([]byte("{}"))
+	ctx.SetBody([]byte("{}"))
+	ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
