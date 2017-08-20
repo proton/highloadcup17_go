@@ -79,13 +79,13 @@ func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32
 			continue
 		}
 		if fromAge != nil || toAge != nil {
-			age_ts := now - visit.UserBirthDate
-			age := time.Unix(age_ts).Year()
-			if fromAge != nil && age < fromAge {
+			age_ts := int64(now - visit.UserBirthDate)
+			age := uint32(time.Unix(age_ts, 0).Year())
+			if fromAge != nil && age < *fromAge {
 				visit.Mutex.RUnlock()
 				continue
 			}
-			if toAge != nil && age > toAge {
+			if toAge != nil && age > *toAge {
 				visit.Mutex.RUnlock()
 				continue
 			}
