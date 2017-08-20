@@ -47,23 +47,24 @@ func loadInitialData() {
 	}
 	defer r.Close()
 
-	for _, f := range r.File {
-		if !strings.Contains(f.Name, ".json") {
-			continue
-		}
-		fmt.Println("DataLoading: loading", f.Name)
-		arr := strings.Split(f.Name, "_")
-		entity_kind := arr[0]
+	entity_kinds := []string{"users", "locations", "visits"}
+	for _, entity_kind := range entity_kinds {
+		for _, f := range r.File {
+			if !strings.Contains(f.Name, entity_kind) {
+				continue
+			}
+			fmt.Println("DataLoading: loading", f.Name)
 
-		rc, _ := f.Open()
-		b, _ := ioutil.ReadAll(rc)
-		data := make(JsonDataArray)
-		json.Unmarshal(b, &data)
-		json_objects := data[entity_kind]
+			rc, _ := f.Open()
+			b, _ := ioutil.ReadAll(rc)
+			data := make(JsonDataArray)
+			json.Unmarshal(b, &data)
+			json_objects := data[entity_kind]
 
-		repo := entity_repo(entity_kind)
-		for _, json_object := range json_objects {
-			repo.Create(&json_object)
+			repo := entity_repo(entity_kind)
+			for _, json_object := range json_objects {
+				repo.Create(&json_object)
+			}
 		}
 	}
 }
