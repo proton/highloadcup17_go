@@ -56,7 +56,7 @@ func (entity *User) Update(data *JsonData, lock bool) bool {
 		}
 	}
 	if denormolize_in_visits {
-		visits := entity.Visits(nil, nil, nil, nil)
+		visits := entity.Visits(true, nil, nil, nil, nil)
 		for _, visit := range visits {
 			visit.UserGender = entity.Gender
 			visit.UserBirthDate = entity.BirthDate
@@ -83,29 +83,36 @@ func (entity *User) VisitIds() []uint32 {
 	return ids
 }
 
-func (entity *User) Visits(fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) []*Visit {
+func (entity *User) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) bool {
+	if visit.UserId != entity.Id {
+		return false
+	}
+	if fromDate != nil && visit.VisitedAt < *fromDate {
+		return false
+	}
+	if toDate != nil && visit.VisitedAt > *toDate {
+		return false
+	}
+	if country != nil && visit.LocationCountry != *country {
+		return false
+	}
+	if toDistance != nil && visit.LocationDistance >= *toDistance {
+		return false
+	}
+	return true
+}
+
+func (entity *User) Visits(lock bool, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) []*Visit {
 	visits, _ := Visits.FindAll(entity.VisitIds())
 	filteredVisits := make([]*Visit, 0, len(visits))
 	for _, visit := range visits {
-		visit.Mutex.RLock()
-		if visit.UserId != entity.Id {
-			visit.Mutex.RUnlock()
-			continue
+		if lock {
+			visit.Mutex.RLock()
 		}
-		if fromDate != nil && visit.VisitedAt < *fromDate {
-			visit.Mutex.RUnlock()
-			continue
-		}
-		if toDate != nil && visit.VisitedAt > *toDate {
-			visit.Mutex.RUnlock()
-			continue
-		}
-		if country != nil && visit.LocationCountry != *country {
-			visit.Mutex.RUnlock()
-			continue
-		}
-		if toDistance != nil && visit.LocationDistance >= *toDistance {
-			visit.Mutex.RUnlock()
+		if !entity.checkVisit(visit, fromDate, toDate, country, toDistance) {
+			if lock {
+				visit.Mutex.RUnlock()
+			}
 			continue
 		}
 		filteredVisits = append(filteredVisits, visit)
@@ -116,7 +123,7 @@ func (entity *User) Visits(fromDate *uint32, toDate *uint32, country *string, to
 func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) {
 	entity.Mutex.RLock()
 
-	visits := entity.Visits(fromDate, toDate, country, toDistance)
+	visits := entity.Visits(false, fromDate, toDate, country, toDistance)
 
 	sort.Slice(visits, func(i, j int) bool { return visits[i].VisitedAt < visits[j].VisitedAt })
 
@@ -127,7 +134,6 @@ func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint3
 			w.Write([]byte(","))
 		}
 		json.NewEncoder(w).Encode(visit.ToView())
-		visit.Mutex.RUnlock()
 		first = false
 	}
 	w.Write([]byte("]}"))

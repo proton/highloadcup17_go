@@ -49,7 +49,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 		}
 	}
 	if denormolize_in_visits {
-		visits := entity.Visits(nil, nil, nil, nil, nil)
+		visits := entity.Visits(true, nil, nil, nil, nil, nil)
 		for _, visit := range visits {
 			visit.LocationCountry = entity.Country
 			visit.LocationDistance = entity.Distance
@@ -83,32 +83,37 @@ func BirthDateToAge(BirthDate int32) uint32 {
 	return age
 }
 
-func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
+func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) bool {
+	if fromDate != nil && visit.VisitedAt < *fromDate {
+		return false
+	}
+	if toDate != nil && visit.VisitedAt > *toDate {
+		return false
+	}
+	if fromAge != nil || toAge != nil {
+		age := BirthDateToAge(visit.UserBirthDate)
+		if fromAge != nil && age < *fromAge {
+			return false
+		}
+		if toAge != nil && age >= *toAge {
+			return false
+		}
+	}
+	if gender != nil && visit.UserGender != *gender {
+		return false
+	}
+	return true
+}
+
+func (entity *Location) Visits(lock bool, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
 	visits, _ := Visits.FindAll(entity.VisitIds())
 	filteredVisits := make([]*Visit, 0, len(visits))
 	for _, visit := range visits {
 		visit.Mutex.RLock()
-		if fromDate != nil && visit.VisitedAt < *fromDate {
-			visit.Mutex.RUnlock()
-			continue
-		}
-		if toDate != nil && visit.VisitedAt > *toDate {
-			visit.Mutex.RUnlock()
-			continue
-		}
-		if fromAge != nil || toAge != nil {
-			age := BirthDateToAge(visit.UserBirthDate)
-			if fromAge != nil && age < *fromAge {
+		if !entity.checkVisit(visit, fromDate, toDate, fromAge, toAge, gender) {
+			if lock {
 				visit.Mutex.RUnlock()
-				continue
 			}
-			if toAge != nil && age >= *toAge {
-				visit.Mutex.RUnlock()
-				continue
-			}
-		}
-		if gender != nil && visit.UserGender != *gender {
-			visit.Mutex.RUnlock()
 			continue
 		}
 		filteredVisits = append(filteredVisits, visit)
@@ -119,7 +124,7 @@ func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32
 func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
 	entity.Mutex.RLock()
 
-	filteredVisits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
+	filteredVisits := entity.Visits(false, fromDate, toDate, fromAge, toAge, gender)
 	if len(filteredVisits) == 0 {
 		w.Write([]byte("{\"avg\": 0}"))
 	} else {
