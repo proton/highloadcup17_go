@@ -12,7 +12,7 @@ import (
 	"strings"
 	// "time"
 	// "github.com/pkg/profile"
-	// "runtime/debug" //TODO:
+	// "runtime/debug"
 	"strconv"
 )
 
@@ -100,15 +100,13 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	}()
 
 	path := strings.Split(string(ctx.Path()), "/")
-	http_method := string(ctx.Method())
+	http_method_is_get := string(ctx.Method()) == "GET"
 	path_len := len(path)
 	entity_kind := path[1]
 	repo := entity_repo(entity_kind)
 
 	if path_len == 3 {
-		// var entity, ok = find_entity(repo, &path[2])
-		// if ok == true {
-		if http_method == "GET" {
+		if http_method_is_get {
 			var entity, ok = find_entity(repo, &path[2], false)
 			if ok == true {
 				renderEntity(ctx, entity)
@@ -124,7 +122,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 				return
 			}
 		}
-	} else if path_len == 4 && http_method == "GET" {
+	} else if path_len == 4 && http_method_is_get {
 		if entity_kind == "users" && path[3] == "visits" {
 			var user, ok = find_user(&path[2], false)
 			if ok == true {
@@ -201,8 +199,9 @@ func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
 				toAge, ok := extractUintParam(ctx, "toAge")
 				if ok {
 					gender, ok := extractStringParam(ctx, "gender")
-					if ok && gender == nil || validate_gender(*gender) {
+					if ok && (gender == nil || validate_gender(*gender)) {
 						location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
+						return
 					}
 				}
 			}
