@@ -10,7 +10,7 @@ type Entity interface {
 }
 
 type EntityRepo interface {
-	Create(data *JsonData)
-	CreateFromJson(raw_data []byte) error
+	Create(data *JsonData) bool
+	// CreateFromJson(raw_data []byte) error
 	FindEntity(id uint32) (Entity, bool)
 }

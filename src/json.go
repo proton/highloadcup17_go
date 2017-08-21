@@ -6,10 +6,7 @@ import (
 	// "fmt"
 )
 
-type JsonData map[string]interface{}
-type JsonDataArray map[string][]JsonData
-
-func ValidateJson(data *JsonData) error {
+func validateJson(data *JsonData) error {
 	for _, value := range *data {
 		if value == nil {
 			return errors.New("nil")
@@ -18,11 +15,12 @@ func ValidateJson(data *JsonData) error {
 	return nil
 }
 
-func readRequstJson(body []byte) (JsonData, error) {
+func parseJson(body []byte) (*JsonData, bool) {
 	var data JsonData
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		err = ValidateJson(&data)
+		return nil, false
+		// 	err = ValidateJson(&data)
 	}
-	return data, err
+	return &data, true
 }

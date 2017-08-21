@@ -146,20 +146,24 @@ func (repo *UsersRepo) InitEntity() *User {
 	return &entity
 }
 
-func (repo *UsersRepo) Create(data *JsonData) {
+func (repo *UsersRepo) Create(data *JsonData) bool {
 	entity := repo.InitEntity()
-	entity.Update(data, false)
+	ok := entity.Update(data, false)
+	if !ok {
+		return false
+	}
 	repo.Add(entity)
+	return true
 }
 
-func (repo *UsersRepo) CreateFromJson(raw_data []byte) error {
-	entity := repo.InitEntity()
-	err := json.Unmarshal(raw_data, entity)
-	if err == nil {
-		repo.Add(entity)
-	}
-	return err
-}
+// func (repo *UsersRepo) CreateFromJson(raw_data []byte) error {
+// 	entity := repo.InitEntity()
+// 	err := json.Unmarshal(raw_data, entity)
+// 	if err == nil {
+// 		repo.Add(entity)
+// 	}
+// 	return err
+// }
 
 func (repo *UsersRepo) Add(entity *User) {
 	repo.Mutex.Lock()

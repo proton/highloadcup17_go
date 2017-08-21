@@ -249,29 +249,41 @@ func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 	user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
 }
 
-func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
-	request_body := ctx.PostBody()
-	var data, err = readRequstJson(request_body)
+type JsonData map[string]interface{}
+type JsonDataArray map[string][]JsonData
+
+func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
+	var data JsonData
+	body := ctx.PostBody()
+	err := json.Unmarshal(body, &data)
 	if err != nil {
-		render400(ctx)
-	} else {
-		ok := entity.Update(&data, true)
+		return nil
+	}
+	return &data
+}
+
+func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
+	data := loadJSON(ctx)
+	if data != nil {
+		ok := entity.Update(data, true)
 		if ok {
 			renderEmpty(ctx)
-		} else {
-			render400(ctx)
+			return
 		}
 	}
+	render400(ctx)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
-	request_body := ctx.PostBody()
-	err := repo.CreateFromJson(request_body)
-	if err != nil {
-		render400(ctx)
-		return
+	data := loadJSON(ctx)
+	if data != nil {
+		ok := repo.Create(data)
+		if ok {
+			renderEmpty(ctx)
+			return
+		}
 	}
-	renderEmpty(ctx)
+	render400(ctx)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
