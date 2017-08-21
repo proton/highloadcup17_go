@@ -38,6 +38,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 			entity.Id = uint32(value.(float64))
 		case "place":
 			entity.Place = value.(string)
+			denormolize_in_visits = true
 		case "country":
 			entity.Country = value.(string)
 			denormolize_in_visits = true
@@ -51,6 +52,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 	if denormolize_in_visits {
 		visits := entity.Visits(true, nil, nil, nil, nil, nil)
 		for _, visit := range visits {
+			visit.LocationPlace = entity.Place
 			visit.LocationCountry = entity.Country
 			visit.LocationDistance = entity.Distance
 			visit.Mutex.RUnlock()
