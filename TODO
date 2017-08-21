@@ -1,1 +1,6 @@
-- Я сейчас обновляю и валидирую одновременно
+- new scheme:
+ - validate fields
+ - responce
+ - lock
+ - update
+ - unlock
