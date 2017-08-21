@@ -193,61 +193,40 @@ func extractStringParam(ctx *fasthttp.RequestCtx, key string) (*string, bool) {
 
 func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
 	fromDate, ok := extractUintParam(ctx, "fromDate")
-	if ok == false {
-		render400(ctx)
-		return
+	if ok {
+		toDate, ok := extractUintParam(ctx, "toDate")
+		if ok {
+			fromAge, ok := extractUintParam(ctx, "fromAge")
+			if ok {
+				toAge, ok := extractUintParam(ctx, "toAge")
+				if ok {
+					gender, ok := extractStringParam(ctx, "gender")
+					if ok && gender == nil || validate_gender(*gender) {
+						location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
+					}
+				}
+			}
+		}
 	}
-	toDate, ok := extractUintParam(ctx, "toDate")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	fromAge, ok := extractUintParam(ctx, "fromAge")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	toAge, ok := extractUintParam(ctx, "toAge")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	gender, ok := extractStringParam(ctx, "gender")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	if gender != nil && !validate_gender(*gender) {
-		render400(ctx)
-		return
-	}
-
-	location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
+	render400(ctx)
 }
 
 func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 	fromDate, ok := extractUintParam(ctx, "fromDate")
-	if ok == false {
-		render400(ctx)
-		return
+	if ok {
+		toDate, ok := extractUintParam(ctx, "toDate")
+		if ok {
+			country, ok := extractStringParam(ctx, "country")
+			if ok {
+				toDistance, ok := extractUintParam(ctx, "toDistance")
+				if ok {
+					user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
+					return
+				}
+			}
+		}
 	}
-	toDate, ok := extractUintParam(ctx, "toDate")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	country, ok := extractStringParam(ctx, "country")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-	toDistance, ok := extractUintParam(ctx, "toDistance")
-	if ok == false {
-		render400(ctx)
-		return
-	}
-
-	user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
+	render400(ctx)
 }
 
 type JsonData map[string]interface{}
