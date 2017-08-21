@@ -60,7 +60,7 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 	}
 
 	if sync_location {
-		location, _ := Locations.Find(entity.LocationId)
+		location, _ := Locations.Find(entity.LocationId, lock)
 		if lock {
 			location.Mutex.Lock()
 		}
@@ -74,7 +74,7 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 	}
 
 	if sync_user {
-		user, _ := Users.Find(entity.UserId)
+		user, _ := Users.Find(entity.UserId, lock)
 		if lock {
 			user.Mutex.Lock()
 		}
@@ -142,10 +142,14 @@ func (repo *VisitsRepo) Add(entity *Visit) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *VisitsRepo) Find(id uint32) (*Visit, bool) {
-	repo.Mutex.RLock()
+func (repo *VisitsRepo) Find(id uint32, lock bool) (*Visit, bool) {
+	if lock {
+		repo.Mutex.RLock()
+	}
 	var entity, found = repo.Collection[id]
-	repo.Mutex.RUnlock()
+	if lock {
+		repo.Mutex.RUnlock()
+	}
 	return entity, found
 }
 
@@ -161,6 +165,6 @@ func (repo *VisitsRepo) FindAll(ids []uint32) ([]*Visit, bool) {
 	return entities, true
 }
 
-func (repo *VisitsRepo) FindEntity(id uint32) (Entity, bool) {
-	return repo.Find(id)
+func (repo *VisitsRepo) FindEntity(id uint32, lock bool) (Entity, bool) {
+	return repo.Find(id, lock)
 }

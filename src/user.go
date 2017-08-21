@@ -171,13 +171,17 @@ func (repo *UsersRepo) Add(entity *User) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *UsersRepo) Find(id uint32) (*User, bool) {
-	repo.Mutex.RLock()
+func (repo *UsersRepo) Find(id uint32, lock bool) (*User, bool) {
+	if lock {
+		repo.Mutex.RLock()
+	}
 	var entity, found = repo.Collection[id]
-	repo.Mutex.RUnlock()
+	if lock {
+		repo.Mutex.RUnlock()
+	}
 	return entity, found
 }
 
-func (repo *UsersRepo) FindEntity(id uint32) (Entity, bool) {
-	return repo.Find(id)
+func (repo *UsersRepo) FindEntity(id uint32, lock bool) (Entity, bool) {
+	return repo.Find(id, lock)
 }

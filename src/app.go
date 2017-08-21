@@ -108,7 +108,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 		// var entity, ok = find_entity(repo, &path[2])
 		// if ok == true {
 		if http_method == "GET" {
-			var entity, ok = find_entity(repo, &path[2])
+			var entity, ok = find_entity(repo, &path[2], false)
 			if ok == true {
 				renderEntity(ctx, entity)
 				return
@@ -117,7 +117,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 			processEntityCreate(ctx, repo)
 			return
 		} else {
-			var entity, ok = find_entity(repo, &path[2])
+			var entity, ok = find_entity(repo, &path[2], true)
 			if ok == true {
 				processEntityUpdate(ctx, entity)
 				return
@@ -125,13 +125,13 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 		}
 	} else if path_len == 4 && http_method == "GET" {
 		if entity_kind == "users" && path[3] == "visits" {
-			var user, ok = find_user(&path[2])
+			var user, ok = find_user(&path[2], false)
 			if ok == true {
 				processUserVisits(ctx, user)
 				return
 			}
 		} else if entity_kind == "locations" && path[3] == "avg" {
-			var location, ok = find_location(&path[2])
+			var location, ok = find_location(&path[2], false)
 			if ok == true {
 				processLocationAvgs(ctx, location)
 				return
@@ -141,29 +141,29 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	render404(ctx)
 }
 
-func find_entity(repo EntityRepo, entity_id_str *string) (Entity, bool) {
+func find_entity(repo EntityRepo, entity_id_str *string, lock bool) (Entity, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
 		entity_id := uint32(entity_id_int)
-		return repo.FindEntity(entity_id)
+		return repo.FindEntity(entity_id, lock)
 	}
 	return nil, false
 }
 
-func find_user(entity_id_str *string) (*User, bool) {
+func find_user(entity_id_str *string, lock bool) (*User, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
 		entity_id := uint32(entity_id_int)
-		return Users.Find(entity_id)
+		return Users.Find(entity_id, lock)
 	}
 	return nil, false
 }
 
-func find_location(entity_id_str *string) (*Location, bool) {
+func find_location(entity_id_str *string, lock bool) (*Location, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
 		entity_id := uint32(entity_id_int)
-		return Locations.Find(entity_id)
+		return Locations.Find(entity_id, lock)
 	}
 	return nil, false
 }
