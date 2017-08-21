@@ -164,15 +164,6 @@ func (repo *LocationsRepo) Create(data *JsonData) bool {
 	return true
 }
 
-// func (repo *LocationsRepo) CreateFromJson(raw_data []byte) error {
-// 	entity := repo.InitEntity()
-// 	err := json.Unmarshal(raw_data, entity)
-// 	if err == nil {
-// 		repo.Add(entity)
-// 	}
-// 	return err
-// }
-
 func (repo *LocationsRepo) Add(entity *Location) {
 	repo.Mutex.Lock()
 	repo.Collection[entity.Id] = entity

@@ -156,15 +156,6 @@ func (repo *UsersRepo) Create(data *JsonData) bool {
 	return true
 }
 
-// func (repo *UsersRepo) CreateFromJson(raw_data []byte) error {
-// 	entity := repo.InitEntity()
-// 	err := json.Unmarshal(raw_data, entity)
-// 	if err == nil {
-// 		repo.Add(entity)
-// 	}
-// 	return err
-// }
-
 func (repo *UsersRepo) Add(entity *User) {
 	repo.Mutex.Lock()
 	repo.Collection[entity.Id] = entity
