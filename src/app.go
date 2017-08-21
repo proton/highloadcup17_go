@@ -2,9 +2,9 @@ package main
 
 import (
 	"archive/zip"
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/pquerna/ffjson/ffjson"
 	// "github.com/hashicorp/go-memdb"
 	"github.com/valyala/fasthttp"
 	"io/ioutil"
@@ -57,7 +57,7 @@ func loadInitialData() {
 			rc, _ := f.Open()
 			b, _ := ioutil.ReadAll(rc)
 			data := make(JsonDataArray)
-			json.Unmarshal(b, &data)
+			ffjson.Unmarshal(b, &data)
 			json_objects := data[entity_kind]
 
 			repo := entity_repo(entity_kind)
@@ -234,7 +234,7 @@ type JsonDataArray map[string][]JsonData
 func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
 	var data JsonData
 	body := ctx.PostBody()
-	err := json.Unmarshal(body, &data)
+	err := ffjson.Unmarshal(body, &data)
 	if err != nil {
 		return nil
 	}

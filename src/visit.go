@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
 	// "fmt"
 	"io"
 	"sync"
@@ -91,7 +91,7 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 
 func (entity *Visit) to_json(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	ffjson.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 
@@ -122,19 +122,6 @@ func (repo *VisitsRepo) Create(data *JsonData) bool {
 	repo.Add(entity)
 	return true
 }
-
-// func (repo *VisitsRepo) CreateFromJson(raw_data []byte) error {
-// 	entity := repo.InitEntity()
-// 	err := json.Unmarshal(raw_data, entity)
-// 	fmt.Println(entity)
-// 	fmt.Println(entity.Id)
-// 	//TODO:
-// 	// return errors.New("invalid")
-// 	if err == nil {
-// 		repo.Add(entity)
-// 	}
-// 	return err
-// }
 
 func (repo *VisitsRepo) Add(entity *Visit) {
 	repo.Mutex.Lock()

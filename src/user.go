@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
 	// "fmt"
 	"io"
 	"sort"
@@ -68,7 +68,7 @@ func (entity *User) Update(data *JsonData, lock bool) bool {
 
 func (entity *User) to_json(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	ffjson.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 
@@ -133,7 +133,7 @@ func (entity *User) WriteVisitsJson(w io.Writer, fromDate *uint32, toDate *uint3
 		if first == false {
 			w.Write([]byte(","))
 		}
-		json.NewEncoder(w).Encode(visit.ToView())
+		ffjson.NewEncoder(w).Encode(visit.ToView())
 		first = false
 	}
 	w.Write([]byte("]}"))

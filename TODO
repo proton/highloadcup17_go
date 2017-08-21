@@ -4,3 +4,6 @@
  - lock
  - update
  - unlock
+
+- faster json?
+https://github.com/mailru/easyjson

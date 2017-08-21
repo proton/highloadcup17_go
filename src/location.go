@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/pquerna/ffjson/ffjson"
 	"io"
 	"sync"
 	"time"
@@ -63,7 +63,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 
 func (entity *Location) to_json(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	ffjson.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 
