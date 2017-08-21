@@ -216,7 +216,7 @@ func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
 		render400(ctx)
 		return
 	}
-	if gender != nil && *gender != "m" && *gender != "f" {
+	if gender != nil && !validate_gender(*gender) {
 		render400(ctx)
 		return
 	}
@@ -255,8 +255,12 @@ func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 	if err != nil {
 		render400(ctx)
 	} else {
-		entity.Update(&data, true)
-		renderEmpty(ctx)
+		ok := entity.Update(&data, true)
+		if ok {
+			renderEmpty(ctx)
+		} else {
+			render400(ctx)
+		}
 	}
 }
 

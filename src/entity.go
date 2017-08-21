@@ -5,7 +5,7 @@ import (
 )
 
 type Entity interface {
-	Update(data *JsonData, lock bool)
+	Update(data *JsonData, lock bool) bool
 	to_json(w io.Writer)
 }
 

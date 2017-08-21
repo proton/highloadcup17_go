@@ -23,12 +23,16 @@ type LocationsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *Location) Update(data *JsonData, lock bool) {
+func (entity *Location) Update(data *JsonData, lock bool) bool {
 	if lock {
 		entity.Mutex.Lock()
+		defer entity.Mutex.Unlock()
 	}
 	denormolize_in_visits := false
 	for key, value := range *data {
+		if value == nil {
+			return false
+		}
 		switch key {
 		case "id":
 			entity.Id = uint32(value.(float64))
@@ -52,9 +56,7 @@ func (entity *Location) Update(data *JsonData, lock bool) {
 			visit.Mutex.RUnlock()
 		}
 	}
-	if lock {
-		entity.Mutex.Unlock()
-	}
+	return true
 }
 
 func (entity *Location) to_json(w io.Writer) {

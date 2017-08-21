@@ -24,12 +24,16 @@ type UsersRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *User) Update(data *JsonData, lock bool) {
+func (entity *User) Update(data *JsonData, lock bool) bool {
 	if lock {
 		entity.Mutex.Lock()
+		defer entity.Mutex.Unlock()
 	}
 	denormolize_in_visits := false
 	for key, value := range *data {
+		if value == nil {
+			return false
+		}
 		switch key {
 		case "id":
 			entity.Id = uint32(value.(float64))
@@ -40,7 +44,11 @@ func (entity *User) Update(data *JsonData, lock bool) {
 		case "last_name":
 			entity.LastName = value.(string)
 		case "gender":
-			entity.Gender = value.(string)
+			gender := value.(string)
+			if !validate_gender(gender) {
+				return false
+			}
+			entity.Gender = gender
 			denormolize_in_visits = true
 		case "birth_date":
 			entity.BirthDate = int32(value.(float64))
@@ -55,9 +63,7 @@ func (entity *User) Update(data *JsonData, lock bool) {
 			visit.Mutex.RUnlock()
 		}
 	}
-	if lock {
-		entity.Mutex.Unlock()
-	}
+	return true
 }
 
 func (entity *User) to_json(w io.Writer) {
