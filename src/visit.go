@@ -64,30 +64,30 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 	if sync_location {
 		location, _ := Locations.Find(entity.LocationId, lock)
 		entity.Location = location
-		// if lock {
-		// 	location.Mutex.Lock()
-		// }
+		if lock {
+			location.Mutex.Lock()
+		}
 		// entity.LocationPlace = location.Place
 		// entity.LocationCountry = location.Country
 		// entity.LocationDistance = location.Distance
-		// location.VisitIdsMap[entity.Id] = true
-		// if lock {
-		// 	location.Mutex.Unlock()
-		// }
+		location.VisitIdsMap[entity.Id] = true
+		if lock {
+			location.Mutex.Unlock()
+		}
 	}
 
 	if sync_user {
 		user, _ := Users.Find(entity.UserId, lock)
 		entity.User = user
-		// if lock {
-		// 	user.Mutex.Lock()
-		// }
+		if lock {
+			user.Mutex.Lock()
+		}
 		// entity.UserBirthDate = user.BirthDate
 		// entity.UserGender = user.Gender
-		// user.VisitIdsMap[entity.Id] = true
-		// if lock {
-		// 	user.Mutex.Unlock()
-		// }
+		user.VisitIdsMap[entity.Id] = true
+		if lock {
+			user.Mutex.Unlock()
+		}
 	}
 
 	return true
