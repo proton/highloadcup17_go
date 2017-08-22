@@ -100,14 +100,14 @@ func (repo *VisitsRepo) Add(entity *Visit) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *VisitsRepo) Find(id int) *Visit {
+func (repo *VisitsRepo) Find(id int) (*Visit, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
-	entity := repo.Collection[id]
-	return entity
+	entity, ok := repo.Collection[id]
+	return entity, ok
 }
 
-func (repo *VisitsRepo) FindEntity(id int) Entity {
+func (repo *VisitsRepo) FindEntity(id int) (Entity, bool) {
 	return repo.Find(id)
 }
 

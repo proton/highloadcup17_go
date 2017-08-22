@@ -40,8 +40,8 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 
 	if path_len == 3 {
 		if http_method_is_get {
-			var entity = find_entity(repo, &path[2])
-			if entity != nil {
+			entity, ok := find_entity(repo, &path[2])
+			if ok {
 				renderEntity(ctx, entity)
 				return
 			}
@@ -49,22 +49,22 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 			processEntityCreate(ctx, repo)
 			return
 		} else {
-			var entity = find_entity(repo, &path[2])
-			if entity != nil {
+			entity, ok := find_entity(repo, &path[2])
+			if ok {
 				processEntityUpdate(ctx, entity)
 				return
 			}
 		}
 	} else if path_len == 4 && http_method_is_get {
 		if entity_kind == "users" && path[3] == "visits" {
-			user := find_user(&path[2])
-			if user != nil {
+			user, ok := find_user(&path[2])
+			if ok {
 				processUserVisits(ctx, user)
 				return
 			}
 		} else if entity_kind == "locations" && path[3] == "avg" {
-			location := find_location(&path[2])
-			if location != nil {
+			location, ok := find_location(&path[2])
+			if ok {
 				processLocationAvgs(ctx, location)
 				return
 			}

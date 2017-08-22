@@ -171,22 +171,22 @@ func (repo *LocationsRepo) Add(entity *Location) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *LocationsRepo) Find(id int) *Location {
+func (repo *LocationsRepo) Find(id int) (*Location, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
-	entity := repo.Collection[id]
-	return entity
+	entity, ok := repo.Collection[id]
+	return entity, ok
 }
 
-func (repo *LocationsRepo) FindEntity(id int) Entity {
+func (repo *LocationsRepo) FindEntity(id int) (Entity, bool) {
 	return repo.Find(id)
 }
 
-func find_location(entity_id_str *string) *Location {
+func find_location(entity_id_str *string) (*Location, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
 		entity_id := int(entity_id_int)
 		return Locations.Find(entity_id)
 	}
-	return nil
+	return nil, false
 }

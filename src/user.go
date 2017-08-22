@@ -166,22 +166,22 @@ func (repo *UsersRepo) Add(entity *User) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *UsersRepo) Find(id int) *User {
+func (repo *UsersRepo) Find(id int) (*User, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
-	entity := repo.Collection[id]
-	return entity
+	entity, ok := repo.Collection[id]
+	return entity, ok
 }
 
-func (repo *UsersRepo) FindEntity(id int) Entity {
+func (repo *UsersRepo) FindEntity(id int) (Entity, bool) {
 	return repo.Find(id)
 }
 
-func find_user(entity_id_str *string) *User {
+func find_user(entity_id_str *string) (*User, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
 		entity_id := int(entity_id_int)
 		return Users.Find(entity_id)
 	}
-	return nil
+	return nil, false
 }
