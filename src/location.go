@@ -50,17 +50,6 @@ func (entity *Location) to_json(w io.Writer) {
 	entity.Mutex.RUnlock()
 }
 
-// func (entity *Location) VisitIds() []int {
-// 	ids := make([]int, len(entity.VisitIdsMap))
-
-// 	i := 0
-// 	for id := range entity.VisitIdsMap {
-// 		ids[i] = id
-// 		i++
-// 	}
-// 	return ids
-// }
-
 func BirthDateToAge(BirthDate int) int {
 	now := int(time.Now().Unix())
 	age_ts := int64(now - BirthDate)
@@ -92,6 +81,9 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 
 func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) []*Visit {
 	visits_repo := LocationsVisits.findVisitsRepo(entity.Id)
+	if visits_repo == nil {
+		return nil
+	}
 	visits_repo.Mutex.RLock()
 	filteredVisits := make([]*Visit, 0, len(visits_repo.Collection))
 	for _, visit := range visits_repo.Collection {

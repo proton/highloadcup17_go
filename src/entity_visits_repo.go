@@ -17,7 +17,7 @@ func (repo *EntityVisitsRepo) findVisitsRepo(entity_id int) *VisitsRepo {
 	return entity
 }
 
-func (repo *EntityVisitsRepo) addVisit(entity_id int, visit *Visit) []*Visit {
+func (repo *EntityVisitsRepo) initVisitsRepo(entity_id int) *VisitsRepo {
 	repo.Mutex.Lock()
 	visits_repo := repo.Collection[entity_id]
 	if visits_repo == nil {
@@ -25,6 +25,15 @@ func (repo *EntityVisitsRepo) addVisit(entity_id int, visit *Visit) []*Visit {
 			Collection: make(map[int]*Visit),
 			Mutex:      sync.RWMutex{}}
 	}
+	repo.Collection[entity_id] = visits_repo
 	repo.Mutex.Unlock()
-	return nil
+	return visits_repo
+}
+
+func (repo *EntityVisitsRepo) addVisit(entity_id int, visit *Visit) {
+	visits_repo := repo.findVisitsRepo(entity_id)
+	if visits_repo == nil {
+		visits_repo = repo.initVisitsRepo(entity_id)
+	}
+	visits_repo.Add(visit)
 }

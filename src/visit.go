@@ -54,9 +54,13 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 
 	if sync_location {
+		location, _ := Locations.Find(entity.LocationId)
+		entity.Location = location
 		LocationsVisits.addVisit(entity.LocationId, entity)
 	}
 	if sync_user {
+		user, _ := Users.Find(entity.UserId)
+		entity.User = user
 		UsersVisits.addVisit(entity.UserId, entity)
 	}
 }
@@ -101,15 +105,3 @@ func (repo *VisitsRepo) Find(id int) (*Visit, bool) {
 func (repo *VisitsRepo) FindEntity(id int) (Entity, bool) {
 	return repo.Find(id)
 }
-
-// func (repo *VisitsRepo) FindAll(ids []int) []*Visit {
-// 	entities := make([]*Visit, len(ids))
-// 	repo.Mutex.RLock()
-// 	for i, id := range ids {
-// 		var entity, _ = repo.Collection[id]
-// 		// entity lock?
-// 		entities[i] = entity
-// 	}
-// 	repo.Mutex.RUnlock()
-// 	return entities
-// }
