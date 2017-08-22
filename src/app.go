@@ -9,6 +9,9 @@ import (
 	"log"
 	"strings"
 	// "github.com/pkg/profile"
+	// "net/http"
+	// "net/http/pprof"
+	// _ "runtime/pprof"
 	"sync"
 )
 
@@ -88,6 +91,15 @@ func main() {
 	flag.Parse()
 	initVars()
 	loadInitialData()
+
+	// r := http.NewServeMux()
+	// r.HandleFunc("/debug/pprof/", pprof.Index)
+	// r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	// r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	// r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	// r.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	// go http.ListenAndServe(":8080", r)
+
 	// defer profile.Start().Stop()
 	startWebServer()
 }
