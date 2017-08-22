@@ -29,7 +29,7 @@ type VisitsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *Visit) Update(data *JsonData, lock bool) bool {
+func (entity *Visit) Update(data *JsonData, lock bool) {
 	sync_user := false
 	sync_location := false
 	if lock {
@@ -37,9 +37,6 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 		defer entity.Mutex.Unlock()
 	}
 	for key, value := range *data {
-		if value == nil {
-			return false
-		}
 		switch key {
 		case "id":
 			entity.Id = int(value.(float64))
@@ -62,8 +59,6 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 	if sync_user {
 		UsersVisits.addVisit(entity.UserId, entity)
 	}
-
-	return true
 }
 
 func (entity *Visit) to_json(w io.Writer) {
@@ -84,14 +79,10 @@ func (repo *VisitsRepo) InitEntity() *Visit {
 	return &entity
 }
 
-func (repo *VisitsRepo) Create(data *JsonData) bool {
+func (repo *VisitsRepo) Create(data *JsonData) {
 	entity := repo.InitEntity()
-	ok := entity.Update(data, false)
-	if !ok {
-		return false
-	}
+	entity.Update(data, false)
 	repo.Add(entity)
-	return true
 }
 
 func (repo *VisitsRepo) Add(entity *Visit) {

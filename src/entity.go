@@ -6,12 +6,12 @@ import (
 )
 
 type Entity interface {
-	Update(data *JsonData, lock bool) bool
+	Update(data *JsonData, lock bool)
 	to_json(w io.Writer)
 }
 
 type EntityRepo interface {
-	Create(data *JsonData) bool
+	Create(data *JsonData)
 	// CreateFromJson(raw_data []byte) error
 	FindEntity(id int) (Entity, bool)
 }

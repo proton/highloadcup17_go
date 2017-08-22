@@ -23,42 +23,25 @@ type LocationsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *Location) Update(data *JsonData, lock bool) bool {
+func (entity *Location) Update(data *JsonData, lock bool) {
 	if lock {
 		entity.Mutex.Lock()
 		defer entity.Mutex.Unlock()
 	}
-	// denormolize_in_visits := false
 	for key, value := range *data {
-		// if value == nil {
-		// 	return false
-		// }
 		switch key {
 		case "id":
 			entity.Id = int(value.(float64))
 		case "place":
 			entity.Place = value.(string)
-			// denormolize_in_visits = true
 		case "country":
 			entity.Country = value.(string)
-			// denormolize_in_visits = true
 		case "city":
 			entity.City = value.(string)
 		case "distance":
 			entity.Distance = int(value.(float64))
-			// denormolize_in_visits = true
 		}
 	}
-	// if denormolize_in_visits {
-	// 	visits := entity.Visits(true, nil, nil, nil, nil, nil)
-	// 	for _, visit := range visits {
-	// 		visit.LocationPlace = entity.Place
-	// 		visit.LocationCountry = entity.Country
-	// 		visit.LocationDistance = entity.Distance
-	// 		visit.Mutex.RUnlock()
-	// 	}
-	// }
-	return true
 }
 
 func (entity *Location) to_json(w io.Writer) {
@@ -155,14 +138,10 @@ func (repo *LocationsRepo) InitEntity() *Location {
 	return &Location{}
 }
 
-func (repo *LocationsRepo) Create(data *JsonData) bool {
+func (repo *LocationsRepo) Create(data *JsonData) {
 	entity := repo.InitEntity()
-	ok := entity.Update(data, false)
-	if !ok {
-		return false
-	}
+	entity.Update(data, false)
 	repo.Add(entity)
-	return true
 }
 
 func (repo *LocationsRepo) Add(entity *Location) {

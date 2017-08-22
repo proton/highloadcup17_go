@@ -152,26 +152,24 @@ func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
 
 func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 	data := loadJSON(ctx)
-	if data != nil {
-		ok := entity.Update(data, true)
-		if ok {
-			renderEmpty(ctx)
-			return
-		}
+	if data == nil {
+		render400(ctx)
+		return
 	}
-	render400(ctx)
+	renderEmpty(ctx)
+	ctx.SetConnectionClose() // is it really helps?
+	entity.Update(data, true)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 	data := loadJSON(ctx)
-	if data != nil {
-		ok := repo.Create(data)
-		if ok {
-			renderEmpty(ctx)
-			return
-		}
+	if data == nil {
+		render400(ctx)
+		return
 	}
-	render400(ctx)
+	renderEmpty(ctx)
+	ctx.SetConnectionClose() // is it really helps?
+	repo.Create(data)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
