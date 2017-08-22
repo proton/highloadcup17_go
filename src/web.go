@@ -155,8 +155,8 @@ func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 		return
 	}
 	renderEmpty(ctx)
-	ctx.SetConnectionClose() // is it really helps?
-	entity.Update(data, true)
+	// ctx.SetConnectionClose() // is it really helps?
+	go entity.Update(data, true)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
@@ -166,8 +166,8 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 		return
 	}
 	renderEmpty(ctx)
-	ctx.SetConnectionClose() // is it really helps?
-	repo.Create(data)
+	// ctx.SetConnectionClose() // is it really helps?
+	go repo.Create(data)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
