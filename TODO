@@ -11,11 +11,4 @@ https://github.com/mailru/easyjson
 https://github.com/pquerna/ffjson
 Tip 2: Pooling the buffer
 
-
-У меня есть подозрение, что единственное, что они ломают в данных это null'ы
-Поэтому валидацию можно свести к string.contains("null")
-
 int vs unint32???
-
-!!!!
-Зачем я вообще денормализую данные?! User/Location не удаляются, так что можно хранить указатели на них в Visit и всё!!!!

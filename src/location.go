@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"github.com/pquerna/ffjson/ffjson"
 	"io"
+	"strconv"
 	"sync"
 	"time"
 )
 
 type Location struct {
-	Id          uint32          `json:"id"`
-	Place       string          `json:"place"`
-	Country     string          `json:"country"`
-	City        string          `json:"city"`
-	Distance    uint32          `json:"distance"`
-	Mutex       sync.RWMutex    `json:"-"`
-	VisitIdsMap map[uint32]bool `json:"-"`
+	Id       int          `json:"id"`
+	Place    string       `json:"place"`
+	Country  string       `json:"country"`
+	City     string       `json:"city"`
+	Distance int          `json:"distance"`
+	Mutex    sync.RWMutex `json:"-"`
 }
 
 type LocationsRepo struct {
-	Collection map[uint32]*Location
+	Collection map[int]*Location
 	Mutex      sync.RWMutex
 }
 
@@ -35,7 +35,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 		// }
 		switch key {
 		case "id":
-			entity.Id = uint32(value.(float64))
+			entity.Id = int(value.(float64))
 		case "place":
 			entity.Place = value.(string)
 			// denormolize_in_visits = true
@@ -45,7 +45,7 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 		case "city":
 			entity.City = value.(string)
 		case "distance":
-			entity.Distance = uint32(value.(float64))
+			entity.Distance = int(value.(float64))
 			// denormolize_in_visits = true
 		}
 	}
@@ -67,25 +67,25 @@ func (entity *Location) to_json(w io.Writer) {
 	entity.Mutex.RUnlock()
 }
 
-func (entity *Location) VisitIds() []uint32 {
-	ids := make([]uint32, len(entity.VisitIdsMap))
+// func (entity *Location) VisitIds() []int {
+// 	ids := make([]int, len(entity.VisitIdsMap))
 
-	i := 0
-	for id := range entity.VisitIdsMap {
-		ids[i] = id
-		i++
-	}
-	return ids
-}
+// 	i := 0
+// 	for id := range entity.VisitIdsMap {
+// 		ids[i] = id
+// 		i++
+// 	}
+// 	return ids
+// }
 
-func BirthDateToAge(BirthDate int32) uint32 {
-	now := int32(time.Now().Unix())
+func BirthDateToAge(BirthDate int) int {
+	now := int(time.Now().Unix())
 	age_ts := int64(now - BirthDate)
-	age := uint32(time.Unix(age_ts, 0).Year() - 1970)
+	age := int(time.Unix(age_ts, 0).Year() - 1970)
 	return age
 }
 
-func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) bool {
+func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) bool {
 	if fromDate != nil && visit.VisitedAt < *fromDate {
 		return false
 	}
@@ -107,33 +107,36 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint3
 	return true
 }
 
-func (entity *Location) Visits(lock bool, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
-	visits, _ := Visits.FindAll(entity.VisitIds())
-	filteredVisits := make([]*Visit, 0, len(visits))
-	for _, visit := range visits {
+func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) []*Visit {
+	visits_repo := LocationsVisits.findVisitsRepo(entity.Id)
+	visits_repo.Mutex.RLock()
+	filteredVisits := make([]*Visit, 0, len(visits_repo.Collection))
+	for _, visit := range visits_repo.Collection {
 		visit.Mutex.RLock()
 		if !entity.checkVisit(visit, fromDate, toDate, fromAge, toAge, gender) {
-			if lock {
-				visit.Mutex.RUnlock()
-			}
 			continue
 		}
 		filteredVisits = append(filteredVisits, visit)
+		visit.Mutex.RUnlock()
 	}
+	visits_repo.Mutex.RUnlock()
 	return filteredVisits
 }
 
-func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
-	entity.Mutex.RLock()
+func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) {
 
-	filteredVisits := entity.Visits(false, fromDate, toDate, fromAge, toAge, gender)
-	if len(filteredVisits) == 0 {
+	entity.Mutex.RLock()
+	visits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
+	entity.Mutex.RUnlock()
+
+	if len(visits) == 0 {
 		w.Write([]byte("{\"avg\": 0}"))
 	} else {
 		marks_count := 0
-		marks_sum := uint32(0)
+		marks_sum := 0
 
-		for _, visit := range filteredVisits {
+		for _, visit := range visits {
+			visit.Mutex.RLock()
 			marks_sum += visit.Mark
 			marks_count += 1
 			visit.Mutex.RUnlock()
@@ -146,19 +149,10 @@ func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *uint32, toDate *uin
 		w.Write([]byte(avg_str))
 		w.Write([]byte("}"))
 	}
-	entity.Mutex.RUnlock()
-}
-
-func NewLocationsRepo() LocationsRepo {
-	return LocationsRepo{
-		Collection: make(map[uint32]*Location),
-		Mutex:      sync.RWMutex{}}
 }
 
 func (repo *LocationsRepo) InitEntity() *Location {
-	entity := Location{
-		VisitIdsMap: make(map[uint32]bool)}
-	return &entity
+	return &Location{}
 }
 
 func (repo *LocationsRepo) Create(data *JsonData) bool {
@@ -177,19 +171,22 @@ func (repo *LocationsRepo) Add(entity *Location) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *LocationsRepo) Find(id uint32, lock bool) (*Location, bool) {
-	if lock {
-		// repo.Mutex.RLock()
-	}
+func (repo *LocationsRepo) Find(id int) *Location {
 	repo.Mutex.RLock()
-	var entity, found = repo.Collection[id]
-	if lock {
-		// repo.Mutex.RUnlock()
-	}
-	repo.Mutex.RUnlock()
-	return entity, found
+	defer repo.Mutex.RUnlock()
+	entity := repo.Collection[id]
+	return entity
 }
 
-func (repo *LocationsRepo) FindEntity(id uint32, lock bool) (Entity, bool) {
-	return repo.Find(id, lock)
+func (repo *LocationsRepo) FindEntity(id int) Entity {
+	return repo.Find(id)
+}
+
+func find_location(entity_id_str *string) *Location {
+	entity_id_int, error := strconv.Atoi(*entity_id_str)
+	if error == nil {
+		entity_id := int(entity_id_int)
+		return Locations.Find(entity_id)
+	}
+	return nil
 }

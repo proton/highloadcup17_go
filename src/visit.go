@@ -8,29 +8,24 @@ import (
 )
 
 type Visit struct {
-	Id         uint32       `json:"id"`
-	LocationId uint32       `json:"location"`
-	UserId     uint32       `json:"user"`
-	VisitedAt  uint32       `json:"visited_at"`
-	Mark       uint32       `json:"mark"`
+	Id         int          `json:"id"`
+	LocationId int          `json:"location"`
+	UserId     int          `json:"user"`
+	VisitedAt  int          `json:"visited_at"`
+	Mark       int          `json:"mark"`
 	Mutex      sync.RWMutex `json:"-"`
 	Location   *Location    `json:"-"`
 	User       *User        `json:"-"`
-	// LocationPlace    string       `json:"-"`
-	// LocationCountry  string       `json:"-"`
-	// LocationDistance uint32       `json:"-"`
-	// UserBirthDate    int32        `json:"-"`
-	// UserGender       string       `json:"-"`
 }
 
 type VisitView struct {
-	Mark      uint32 `json:"mark"`
-	VisitedAt uint32 `json:"visited_at"`
+	Mark      int    `json:"mark"`
+	VisitedAt int    `json:"visited_at"`
 	Place     string `json:"place"`
 }
 
 type VisitsRepo struct {
-	Collection map[uint32]*Visit
+	Collection map[int]*Visit
 	Mutex      sync.RWMutex
 }
 
@@ -47,47 +42,25 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 		}
 		switch key {
 		case "id":
-			entity.Id = uint32(value.(float64))
+			entity.Id = int(value.(float64))
 		case "location":
-			entity.LocationId = uint32(value.(float64))
+			entity.LocationId = int(value.(float64))
 			sync_location = true
 		case "user":
-			entity.UserId = uint32(value.(float64))
+			entity.UserId = int(value.(float64))
 			sync_user = true
 		case "visited_at":
-			entity.VisitedAt = uint32(value.(float64))
+			entity.VisitedAt = int(value.(float64))
 		case "mark":
-			entity.Mark = uint32(value.(float64))
+			entity.Mark = int(value.(float64))
 		}
 	}
 
 	if sync_location {
-		location, _ := Locations.Find(entity.LocationId, lock)
-		entity.Location = location
-		if lock {
-			location.Mutex.Lock()
-		}
-		// entity.LocationPlace = location.Place
-		// entity.LocationCountry = location.Country
-		// entity.LocationDistance = location.Distance
-		location.VisitIdsMap[entity.Id] = true
-		if lock {
-			location.Mutex.Unlock()
-		}
+		LocationsVisits.addVisit(entity.LocationId, entity)
 	}
-
 	if sync_user {
-		user, _ := Users.Find(entity.UserId, lock)
-		entity.User = user
-		if lock {
-			user.Mutex.Lock()
-		}
-		// entity.UserBirthDate = user.BirthDate
-		// entity.UserGender = user.Gender
-		user.VisitIdsMap[entity.Id] = true
-		if lock {
-			user.Mutex.Unlock()
-		}
+		UsersVisits.addVisit(entity.UserId, entity)
 	}
 
 	return true
@@ -104,12 +77,6 @@ func (visit *Visit) ToView() *VisitView {
 		Mark:      visit.Mark,
 		VisitedAt: visit.VisitedAt,
 		Place:     visit.Location.Place}
-}
-
-func NewVisitsRepo() VisitsRepo {
-	return VisitsRepo{
-		Collection: make(map[uint32]*Visit),
-		Mutex:      sync.RWMutex{}}
 }
 
 func (repo *VisitsRepo) InitEntity() *Visit {
@@ -133,31 +100,25 @@ func (repo *VisitsRepo) Add(entity *Visit) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *VisitsRepo) Find(id uint32, lock bool) (*Visit, bool) {
-	if lock {
-		// repo.Mutex.RLock()
-	}
+func (repo *VisitsRepo) Find(id int) *Visit {
 	repo.Mutex.RLock()
-	var entity, found = repo.Collection[id]
-	if lock {
-		// repo.Mutex.RUnlock()
-	}
-	repo.Mutex.RUnlock()
-	return entity, found
+	defer repo.Mutex.RUnlock()
+	entity := repo.Collection[id]
+	return entity
 }
 
-func (repo *VisitsRepo) FindAll(ids []uint32) ([]*Visit, bool) {
-	entities := make([]*Visit, len(ids))
-	repo.Mutex.RLock()
-	for i, id := range ids {
-		var entity, _ = repo.Collection[id]
-		// entity lock?
-		entities[i] = entity
-	}
-	repo.Mutex.RUnlock()
-	return entities, true
+func (repo *VisitsRepo) FindEntity(id int) Entity {
+	return repo.Find(id)
 }
 
-func (repo *VisitsRepo) FindEntity(id uint32, lock bool) (Entity, bool) {
-	return repo.Find(id, lock)
-}
+// func (repo *VisitsRepo) FindAll(ids []int) []*Visit {
+// 	entities := make([]*Visit, len(ids))
+// 	repo.Mutex.RLock()
+// 	for i, id := range ids {
+// 		var entity, _ = repo.Collection[id]
+// 		// entity lock?
+// 		entities[i] = entity
+// 	}
+// 	repo.Mutex.RUnlock()
+// 	return entities
+// }
