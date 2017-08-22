@@ -3,6 +3,7 @@ package main
 import (
 	// "fmt"
 	"github.com/pquerna/ffjson/ffjson"
+	"github.com/valyala/fasthttp"
 	"io"
 	"sort"
 	"strconv"
@@ -91,7 +92,7 @@ func (entity *User) Visits(fromDate *int, toDate *int, country *string, toDistan
 	return visits
 }
 
-func (entity *User) WriteVisitsJson(w io.Writer, fromDate *int, toDate *int, country *string, toDistance *int) {
+func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *int, toDate *int, country *string, toDistance *int) {
 
 	entity.Mutex.RLock()
 	visits := entity.Visits(fromDate, toDate, country, toDistance)
@@ -103,16 +104,16 @@ func (entity *User) WriteVisitsJson(w io.Writer, fromDate *int, toDate *int, cou
 
 	sort.Slice(visits, func(i, j int) bool { return visits[i].VisitedAt < visits[j].VisitedAt })
 
-	w.Write([]byte("{\"visits\": ["))
+	w.WriteString("{\"visits\": [")
 	first := true
 	for _, visit := range visits {
 		if first == false {
-			w.Write([]byte(","))
+			w.WriteString(",")
 		}
 		ffjson.NewEncoder(w).Encode(visit.ToView())
 		first = false
 	}
-	w.Write([]byte("]}"))
+	w.WriteString("]}")
 
 	for _, visit := range visits {
 		visit.Mutex.RUnlock()

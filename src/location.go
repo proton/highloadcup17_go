@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/pquerna/ffjson/ffjson"
+	"github.com/valyala/fasthttp"
 	"io"
 	"strconv"
 	"sync"
@@ -98,14 +99,14 @@ func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *
 	return filteredVisits
 }
 
-func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) {
+func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) {
 
 	entity.Mutex.RLock()
 	visits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
 	entity.Mutex.RUnlock()
 
 	if len(visits) == 0 {
-		w.Write([]byte("{\"avg\": 0}"))
+		w.WriteString("{\"avg\": 0}")
 	} else {
 		marks_count := 0
 		marks_sum := 0
@@ -120,9 +121,9 @@ func (entity *Location) WriteAvgsJson(w io.Writer, fromDate *int, toDate *int, f
 		avg := float64(marks_sum) / float64(marks_count)
 		avg_str := fmt.Sprintf("%.5f", avg)
 
-		w.Write([]byte("{\"avg\": "))
-		w.Write([]byte(avg_str))
-		w.Write([]byte("}"))
+		w.WriteString("{\"avg\": ")
+		w.WriteString(avg_str)
+		w.WriteString("}")
 	}
 }
 
