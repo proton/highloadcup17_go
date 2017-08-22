@@ -29,11 +29,11 @@ func (entity *User) Update(data *JsonData, lock bool) bool {
 		entity.Mutex.Lock()
 		defer entity.Mutex.Unlock()
 	}
-	denormolize_in_visits := false
+	// denormolize_in_visits := false
 	for key, value := range *data {
-		if value == nil {
-			return false
-		}
+		// if value == nil {
+		// 	return false
+		// }
 		switch key {
 		case "id":
 			entity.Id = uint32(value.(float64))
@@ -45,24 +45,24 @@ func (entity *User) Update(data *JsonData, lock bool) bool {
 			entity.LastName = value.(string)
 		case "gender":
 			gender := value.(string)
-			if !validate_gender(gender) {
-				return false
-			}
+			// if !validate_gender(gender) {
+			// 	return false
+			// }
 			entity.Gender = gender
-			denormolize_in_visits = true
+			// denormolize_in_visits = true
 		case "birth_date":
 			entity.BirthDate = int32(value.(float64))
-			denormolize_in_visits = true
+			// denormolize_in_visits = true
 		}
 	}
-	if denormolize_in_visits {
-		visits := entity.Visits(true, nil, nil, nil, nil)
-		for _, visit := range visits {
-			visit.UserGender = entity.Gender
-			visit.UserBirthDate = entity.BirthDate
-			visit.Mutex.RUnlock()
-		}
-	}
+	// if denormolize_in_visits {
+	// 	visits := entity.Visits(true, nil, nil, nil, nil)
+	// 	for _, visit := range visits {
+	// 		visit.UserGender = entity.Gender
+	// 		visit.UserBirthDate = entity.BirthDate
+	// 		visit.Mutex.RUnlock()
+	// 	}
+	// }
 	return true
 }
 
@@ -93,10 +93,10 @@ func (entity *User) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, c
 	if toDate != nil && visit.VisitedAt > *toDate {
 		return false
 	}
-	if country != nil && visit.LocationCountry != *country {
+	if country != nil && visit.Location.Country != *country {
 		return false
 	}
-	if toDistance != nil && visit.LocationDistance >= *toDistance {
+	if toDistance != nil && visit.Location.Distance >= *toDistance {
 		return false
 	}
 	return true
@@ -170,12 +170,14 @@ func (repo *UsersRepo) Add(entity *User) {
 
 func (repo *UsersRepo) Find(id uint32, lock bool) (*User, bool) {
 	if lock {
-		repo.Mutex.RLock()
+		// repo.Mutex.RLock()
 	}
+	repo.Mutex.RLock()
 	var entity, found = repo.Collection[id]
 	if lock {
-		repo.Mutex.RUnlock()
+		// repo.Mutex.RUnlock()
 	}
+	repo.Mutex.RUnlock()
 	return entity, found
 }
 

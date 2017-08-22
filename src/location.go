@@ -28,36 +28,36 @@ func (entity *Location) Update(data *JsonData, lock bool) bool {
 		entity.Mutex.Lock()
 		defer entity.Mutex.Unlock()
 	}
-	denormolize_in_visits := false
+	// denormolize_in_visits := false
 	for key, value := range *data {
-		if value == nil {
-			return false
-		}
+		// if value == nil {
+		// 	return false
+		// }
 		switch key {
 		case "id":
 			entity.Id = uint32(value.(float64))
 		case "place":
 			entity.Place = value.(string)
-			denormolize_in_visits = true
+			// denormolize_in_visits = true
 		case "country":
 			entity.Country = value.(string)
-			denormolize_in_visits = true
+			// denormolize_in_visits = true
 		case "city":
 			entity.City = value.(string)
 		case "distance":
 			entity.Distance = uint32(value.(float64))
-			denormolize_in_visits = true
+			// denormolize_in_visits = true
 		}
 	}
-	if denormolize_in_visits {
-		visits := entity.Visits(true, nil, nil, nil, nil, nil)
-		for _, visit := range visits {
-			visit.LocationPlace = entity.Place
-			visit.LocationCountry = entity.Country
-			visit.LocationDistance = entity.Distance
-			visit.Mutex.RUnlock()
-		}
-	}
+	// if denormolize_in_visits {
+	// 	visits := entity.Visits(true, nil, nil, nil, nil, nil)
+	// 	for _, visit := range visits {
+	// 		visit.LocationPlace = entity.Place
+	// 		visit.LocationCountry = entity.Country
+	// 		visit.LocationDistance = entity.Distance
+	// 		visit.Mutex.RUnlock()
+	// 	}
+	// }
 	return true
 }
 
@@ -93,7 +93,7 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint3
 		return false
 	}
 	if fromAge != nil || toAge != nil {
-		age := BirthDateToAge(visit.UserBirthDate)
+		age := BirthDateToAge(visit.User.BirthDate)
 		if fromAge != nil && age < *fromAge {
 			return false
 		}
@@ -101,7 +101,7 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint3
 			return false
 		}
 	}
-	if gender != nil && visit.UserGender != *gender {
+	if gender != nil && visit.User.Gender != *gender {
 		return false
 	}
 	return true
@@ -179,12 +179,14 @@ func (repo *LocationsRepo) Add(entity *Location) {
 
 func (repo *LocationsRepo) Find(id uint32, lock bool) (*Location, bool) {
 	if lock {
-		repo.Mutex.RLock()
+		// repo.Mutex.RLock()
 	}
+	repo.Mutex.RLock()
 	var entity, found = repo.Collection[id]
 	if lock {
-		repo.Mutex.RUnlock()
+		// repo.Mutex.RUnlock()
 	}
+	repo.Mutex.RUnlock()
 	return entity, found
 }
 

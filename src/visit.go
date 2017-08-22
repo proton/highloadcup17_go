@@ -8,17 +8,19 @@ import (
 )
 
 type Visit struct {
-	Id               uint32       `json:"id"`
-	LocationId       uint32       `json:"location"`
-	UserId           uint32       `json:"user"`
-	VisitedAt        uint32       `json:"visited_at"`
-	Mark             uint32       `json:"mark"`
-	Mutex            sync.RWMutex `json:"-"`
-	LocationPlace    string       `json:"-"`
-	LocationCountry  string       `json:"-"`
-	LocationDistance uint32       `json:"-"`
-	UserBirthDate    int32        `json:"-"`
-	UserGender       string       `json:"-"`
+	Id         uint32       `json:"id"`
+	LocationId uint32       `json:"location"`
+	UserId     uint32       `json:"user"`
+	VisitedAt  uint32       `json:"visited_at"`
+	Mark       uint32       `json:"mark"`
+	Mutex      sync.RWMutex `json:"-"`
+	Location   *Location    `json:"-"`
+	User       *User        `json:"-"`
+	// LocationPlace    string       `json:"-"`
+	// LocationCountry  string       `json:"-"`
+	// LocationDistance uint32       `json:"-"`
+	// UserBirthDate    int32        `json:"-"`
+	// UserGender       string       `json:"-"`
 }
 
 type VisitView struct {
@@ -61,29 +63,31 @@ func (entity *Visit) Update(data *JsonData, lock bool) bool {
 
 	if sync_location {
 		location, _ := Locations.Find(entity.LocationId, lock)
-		if lock {
-			location.Mutex.Lock()
-		}
-		entity.LocationPlace = location.Place
-		entity.LocationCountry = location.Country
-		entity.LocationDistance = location.Distance
-		location.VisitIdsMap[entity.Id] = true
-		if lock {
-			location.Mutex.Unlock()
-		}
+		entity.Location = location
+		// if lock {
+		// 	location.Mutex.Lock()
+		// }
+		// entity.LocationPlace = location.Place
+		// entity.LocationCountry = location.Country
+		// entity.LocationDistance = location.Distance
+		// location.VisitIdsMap[entity.Id] = true
+		// if lock {
+		// 	location.Mutex.Unlock()
+		// }
 	}
 
 	if sync_user {
 		user, _ := Users.Find(entity.UserId, lock)
-		if lock {
-			user.Mutex.Lock()
-		}
-		entity.UserBirthDate = user.BirthDate
-		entity.UserGender = user.Gender
-		user.VisitIdsMap[entity.Id] = true
-		if lock {
-			user.Mutex.Unlock()
-		}
+		entity.User = user
+		// if lock {
+		// 	user.Mutex.Lock()
+		// }
+		// entity.UserBirthDate = user.BirthDate
+		// entity.UserGender = user.Gender
+		// user.VisitIdsMap[entity.Id] = true
+		// if lock {
+		// 	user.Mutex.Unlock()
+		// }
 	}
 
 	return true
@@ -99,7 +103,7 @@ func (visit *Visit) ToView() *VisitView {
 	return &VisitView{
 		Mark:      visit.Mark,
 		VisitedAt: visit.VisitedAt,
-		Place:     visit.LocationPlace}
+		Place:     visit.Location.Place}
 }
 
 func NewVisitsRepo() VisitsRepo {
@@ -131,12 +135,14 @@ func (repo *VisitsRepo) Add(entity *Visit) {
 
 func (repo *VisitsRepo) Find(id uint32, lock bool) (*Visit, bool) {
 	if lock {
-		repo.Mutex.RLock()
+		// repo.Mutex.RLock()
 	}
+	repo.Mutex.RLock()
 	var entity, found = repo.Collection[id]
 	if lock {
-		repo.Mutex.RUnlock()
+		// repo.Mutex.RUnlock()
 	}
+	repo.Mutex.RUnlock()
 	return entity, found
 }
 
