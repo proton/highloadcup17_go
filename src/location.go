@@ -94,7 +94,7 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint3
 	}
 	if fromAge != nil || toAge != nil {
 		age := BirthDateToAge(visit.User.BirthDate)
-		if fromAge != nil && age < *fromAge {
+		if fromAge != nil && age <= *fromAge {
 			return false
 		}
 		if toAge != nil && age >= *toAge {
