@@ -1,14 +1,5 @@
-- new scheme:
- - validate fields
- - responce
- - lock
- - update
- - unlock
-
 - faster json?
 https://github.com/mailru/easyjson
 
 https://github.com/pquerna/ffjson
 Tip 2: Pooling the buffer
-
-int vs unint32???
