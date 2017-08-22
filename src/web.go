@@ -8,7 +8,7 @@ import (
 	"strings"
 	// "time"
 	// "github.com/pkg/profile"
-	"runtime/debug"
+	// "runtime/debug"
 	"strconv"
 )
 
@@ -26,7 +26,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	// ctx.SetContentType("text/plain; charset=utf8")
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), r, debug.Stack())
+			// fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), r, debug.Stack())
 			render400(ctx)
 		}
 	}()

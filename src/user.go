@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/pquerna/ffjson/ffjson"
 	// "fmt"
+	"github.com/pquerna/ffjson/ffjson"
 	"io"
 	"sort"
 	"strconv"
@@ -79,7 +79,7 @@ func (entity *User) Visits(fromDate *int, toDate *int, country *string, toDistan
 	}
 	visits_repo.Mutex.RLock()
 	visits := make([]*Visit, 0, len(visits_repo.Collection))
-	for _, visit := range visits {
+	for _, visit := range visits_repo.Collection {
 		visit.Mutex.RLock()
 		if !entity.checkVisit(visit, fromDate, toDate, country, toDistance) {
 			continue
