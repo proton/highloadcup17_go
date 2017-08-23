@@ -31,8 +31,6 @@ type VisitsRepo struct {
 }
 
 func (entity *Visit) Update(data *JsonData, lock bool) {
-	var location_id int
-	var user_id int
 	if lock {
 		entity.Mutex.Lock()
 	}
@@ -41,18 +39,15 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 		case "id":
 			entity.Id = int(value.(float64))
 		case "location":
-			location_id = int(value.(float64))
-			entity.LocationId = location_id
-			location, _ := Locations.Find(location_id)
+			entity.LocationId = int(value.(float64))
+			location, _ := Locations.Find(entity.LocationId)
 			entity.Location = location
-			LocationsVisits.addVisit(location_id, entity)
+			LocationsVisits.addVisit(entity.LocationId, entity)
 		case "user":
-			user_id = int(value.(float64))
-			entity.UserId = user_id
-			sync_user = true
-			user, _ := Users.Find(user_id)
+			entity.UserId = int(value.(float64))
+			user, _ := Users.Find(entity.UserId)
 			entity.User = user
-			UsersVisits.addVisit(user_id, entity)
+			UsersVisits.addVisit(entity.UserId, entity)
 		case "visited_at":
 			entity.VisitedAt = int(value.(float64))
 		case "mark":
