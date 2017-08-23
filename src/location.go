@@ -59,6 +59,32 @@ func BirthDateToAge(BirthDate int) int {
 	return age
 }
 
+func AgeToBirthday(age int) int {
+	// from datetime import datetime
+	// from dateutil.relativedelta import relativedelta
+	// import calendar
+
+	birthday := time.Now().AddDate(age, 0, 0)
+	return int(birthday.Unix())
+	// birthday = time.Date(now.Year(), time.November, 10, 23, 0, 0, 0, time.UTC)
+	// now = datetime.now() - relativedelta(years = fromAge)
+
+	// timestamp = calendar.timegm(now.timetuple())
+
+	// 	now := int(time.Now().Unix())
+	// 	age_ts := int64(now - BirthDate)
+	// 	age := int(time.Unix(age_ts, 0).Year() - 1970)
+	// 	return age
+	// 	time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+}
+
+// fromAge - учитывать только путешественников, у которых возраст (считается от текущего timestamp) строго больше этого параметра
+// toAge - учитывать только путешественников, у которых возраст (считается от текущего timestamp) строго меньше этого параметра
+
+// Небольшой пример проверки дат в этом запросе на python (fromAge - количество лет):
+
+// Дальше проверяется birthdate < timestamp либо birthdate > timestamp соответственно.
+
 func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) bool {
 	if fromDate != nil && visit.VisitedAt < *fromDate {
 		return false
@@ -66,15 +92,15 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 	if toDate != nil && visit.VisitedAt > *toDate {
 		return false
 	}
-	if fromAge != nil || toAge != nil {
-		age := BirthDateToAge(visit.User.BirthDate)
-		if fromAge != nil && age <= *fromAge {
-			return false
-		}
-		if toAge != nil && age >= *toAge {
-			return false
-		}
+	// if fromAge != nil || toAge != nil {
+	// 	age := BirthDateToAge(visit.User.BirthDate)
+	if fromAge != nil && visit.User.BirthDate <= AgeToBirthday(*fromAge) {
+		return false
 	}
+	if toAge != nil && visit.User.BirthDate >= AgeToBirthday(*toAge) {
+		return false
+	}
+	// }
 	if gender != nil && visit.User.Gender != *gender {
 		return false
 	}
