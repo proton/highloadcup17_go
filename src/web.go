@@ -45,7 +45,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	// ctx.SetContentType("text/plain; charset=utf8")
 	defer func() {
 		if r := recover(); r != nil {
-			// fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), r, debug.Stack())
+			fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), r, debug.Stack())
 			render400(ctx)
 		}
 	}()
@@ -158,7 +158,7 @@ type JsonDataArray map[string][]JsonData
 func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
 	var data JsonData
 	body := ctx.PostBody()
-	if strings.Contains(string(body), "null") {
+	if strings.Contains(string(body), ": null") {
 		return nil
 	}
 	err := json.Unmarshal(body, &data)
