@@ -88,6 +88,8 @@ func AgeToBirthday(age int) int {
 // Дальше проверяется birthdate < timestamp либо birthdate > timestamp соответственно.
 
 func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) bool {
+	visit.Mutex.RLock()
+	defer visit.Mutex.RUnlock()
 	if fromDate != nil && visit.VisitedAt < *fromDate {
 		return false
 	}
@@ -120,12 +122,10 @@ func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *
 	visits_repo.Mutex.RLock()
 	filteredVisits := make([]*Visit, 0, len(visits_repo.Collection))
 	for _, visit := range visits_repo.Collection {
-		visit.Mutex.RLock()
 		if !entity.checkVisit(visit, fromDate, toDate, fromAge, toAge, gender) {
 			continue
 		}
 		filteredVisits = append(filteredVisits, visit)
-		visit.Mutex.RUnlock()
 	}
 	visits_repo.Mutex.RUnlock()
 	return filteredVisits

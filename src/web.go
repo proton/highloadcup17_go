@@ -24,7 +24,6 @@ func startWebServer() {
 }
 
 func timeoutHandler(ctx *fasthttp.RequestCtx) {
-	// Emulate long-running task, which touches ctx.
 	doneCh := make(chan struct{})
 	go func() {
 		requestHandler(ctx)
@@ -36,7 +35,7 @@ func timeoutHandler(ctx *fasthttp.RequestCtx) {
 		// fmt.Println("The task has been finished in less than a second")
 	case <-time.After(time.Second):
 		fmt.Println("Timeout")
-		fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), debug.Stack())
+		fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), string(ctx.PostBody()), debug.Stack())
 		ctx.TimeoutError("Timeout!")
 	}
 }
@@ -45,7 +44,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	// ctx.SetContentType("text/plain; charset=utf8")
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), r, debug.Stack())
+			fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n%s\n", string(ctx.Method()), string(ctx.Path()), string(ctx.PostBody()), r, debug.Stack())
 			render400(ctx)
 		}
 	}()
@@ -174,9 +173,10 @@ func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 		render400(ctx)
 		return
 	}
+	entity.Update(data, true)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go entity.Update(data, true)
+	// go entity.Update(data, true)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
@@ -185,9 +185,10 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 		render400(ctx)
 		return
 	}
+	repo.Create(data)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go repo.Create(data)
+	// go repo.Create(data)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {

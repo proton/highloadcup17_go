@@ -58,6 +58,8 @@ func (entity *User) toJson(w io.Writer) {
 }
 
 func (entity *User) checkVisit(visit *Visit, fromDate *int, toDate *int, country *string, toDistance *int) bool {
+	visit.Mutex.RLock()
+	defer visit.Mutex.RUnlock()
 	if visit.UserId != entity.Id {
 		return false
 	}
@@ -84,12 +86,10 @@ func (entity *User) Visits(fromDate *int, toDate *int, country *string, toDistan
 	visits_repo.Mutex.RLock()
 	visits := make([]*Visit, 0, len(visits_repo.Collection))
 	for _, visit := range visits_repo.Collection {
-		visit.Mutex.RLock()
 		if !entity.checkVisit(visit, fromDate, toDate, country, toDistance) {
 			continue
 		}
 		visits = append(visits, visit)
-		visit.Mutex.RUnlock()
 	}
 	visits_repo.Mutex.RUnlock()
 	return visits

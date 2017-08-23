@@ -3,7 +3,7 @@ package main
 import (
 	//"github.com/pquerna/ffjson/ffjson"
 	"encoding/json"
-	// "fmt"
+	"fmt"
 	"io"
 	"sync"
 )
@@ -33,9 +33,11 @@ type VisitsRepo struct {
 func (entity *Visit) Update(data *JsonData, lock bool) {
 	sync_user := false
 	sync_location := false
+	fmt.Println("Visit Update Lock", entity.Id)
 	if lock {
 		entity.Mutex.Lock()
 	}
+	fmt.Println("Visit Update after Lock", entity.Id)
 	for key, value := range *data {
 		switch key {
 		case "id":
