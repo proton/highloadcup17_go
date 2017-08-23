@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/pquerna/ffjson/ffjson"
+	//"github.com/pquerna/ffjson/ffjson"
+	"json"
 	// "fmt"
 	"io"
 	"sync"
@@ -65,9 +66,9 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 }
 
-func (entity *Visit) to_json(w io.Writer) {
+func (entity *Visit) toJson(w io.Writer) {
 	entity.Mutex.RLock()
-	ffjson.NewEncoder(w).Encode(entity)
+	json.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 

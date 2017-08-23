@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/pquerna/ffjson/ffjson"
+	//"github.com/pquerna/ffjson/ffjson"
 	"github.com/valyala/fasthttp"
 	"io"
+	"json"
 	"strconv"
 	"sync"
 	"time"
@@ -45,9 +46,9 @@ func (entity *Location) Update(data *JsonData, lock bool) {
 	}
 }
 
-func (entity *Location) to_json(w io.Writer) {
+func (entity *Location) toJson(w io.Writer) {
 	entity.Mutex.RLock()
-	ffjson.NewEncoder(w).Encode(entity)
+	json.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 

@@ -7,7 +7,7 @@ import (
 
 type Entity interface {
 	Update(data *JsonData, lock bool)
-	to_json(w io.Writer)
+	toJson(w io.Writer)
 }
 
 type EntityRepo interface {

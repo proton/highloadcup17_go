@@ -2,22 +2,42 @@ package main
 
 import (
 	"fmt"
-	"github.com/pquerna/ffjson/ffjson"
+	//"github.com/pquerna/ffjson/ffjson"
 	"github.com/valyala/fasthttp"
+	"json"
 	"log"
-	"strings"
-	// "time"
-	// "runtime/debug"
+	"runtime/debug"
 	"strconv"
+	"strings"
+	"time"
 )
 
 func startWebServer() {
 	fmt.Println("Webserver: starting")
-	h := requestHandler
+	// h := requestHandler
+	h := timeoutHandler
 	// h = fasthttp.CompressHandler(h)
 
 	if err := fasthttp.ListenAndServe(*addr, h); err != nil {
 		log.Fatalf("Error in ListenAndServe: %s", err)
+	}
+}
+
+func timeoutHandler(ctx *fasthttp.RequestCtx) {
+	// Emulate long-running task, which touches ctx.
+	doneCh := make(chan struct{})
+	go func() {
+		requestHandler(ctx)
+		close(doneCh)
+	}()
+
+	select {
+	case <-doneCh:
+		// fmt.Println("The task has been finished in less than a second")
+	case <-time.After(time.Second):
+		fmt.Println("Timeout")
+		fmt.Printf("\n\nWEB SERVER ERROR: %s %s - %s\n%s\n", string(ctx.Method()), string(ctx.Path()), debug.Stack())
+		ctx.TimeoutError("Timeout!")
 	}
 }
 
@@ -141,7 +161,7 @@ func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
 	if strings.Contains(string(body), "null") {
 		return nil
 	}
-	err := ffjson.Unmarshal(body, &data)
+	err := json.Unmarshal(body, &data)
 	if err != nil {
 		return nil
 	}
@@ -171,7 +191,7 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
-	entity.to_json(ctx)
+	entity.toJson(ctx)
 	// ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
 

@@ -4,8 +4,9 @@ import (
 	"archive/zip"
 	"flag"
 	"fmt"
-	"github.com/pquerna/ffjson/ffjson"
+	//"github.com/pquerna/ffjson/ffjson"
 	"io/ioutil"
+	"json"
 	"log"
 	"strings"
 	// "github.com/pkg/profile"
@@ -76,7 +77,7 @@ func loadInitialData() {
 			rc, _ := f.Open()
 			b, _ := ioutil.ReadAll(rc)
 			data := make(JsonDataArray)
-			ffjson.Unmarshal(b, &data)
+			json.Unmarshal(b, &data)
 			json_objects := data[entity_kind]
 
 			repo := entity_repo(entity_kind)

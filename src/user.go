@@ -2,9 +2,10 @@ package main
 
 import (
 	// "fmt"
-	"github.com/pquerna/ffjson/ffjson"
+	//"github.com/pquerna/ffjson/ffjson"
 	"github.com/valyala/fasthttp"
 	"io"
+	"json"
 	"sort"
 	"strconv"
 	"sync"
@@ -48,9 +49,9 @@ func (entity *User) Update(data *JsonData, lock bool) {
 	}
 }
 
-func (entity *User) to_json(w io.Writer) {
+func (entity *User) toJson(w io.Writer) {
 	entity.Mutex.RLock()
-	ffjson.NewEncoder(w).Encode(entity)
+	json.NewEncoder(w).Encode(entity)
 	entity.Mutex.RUnlock()
 }
 
@@ -110,7 +111,7 @@ func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *int, toDat
 		if first == false {
 			w.WriteString(",")
 		}
-		ffjson.NewEncoder(w).Encode(visit.ToView())
+		json.NewEncoder(w).Encode(visit.ToView())
 		first = false
 	}
 	w.WriteString("]}")
