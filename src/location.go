@@ -28,7 +28,6 @@ type LocationsRepo struct {
 func (entity *Location) Update(data *JsonData, lock bool) {
 	if lock {
 		entity.Mutex.Lock()
-		defer entity.Mutex.Unlock()
 	}
 	for key, value := range *data {
 		switch key {
@@ -43,6 +42,9 @@ func (entity *Location) Update(data *JsonData, lock bool) {
 		case "distance":
 			entity.Distance = int(value.(float64))
 		}
+	}
+	if lock {
+		entity.Mutex.Unlock()
 	}
 }
 
