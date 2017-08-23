@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	//"github.com/pquerna/ffjson/ffjson"
+	"encoding/json"
 	"github.com/valyala/fasthttp"
 	"io"
-	"json"
 	"strconv"
 	"sync"
 	"time"

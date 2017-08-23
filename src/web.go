@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	//"github.com/pquerna/ffjson/ffjson"
+	"encoding/json"
 	"github.com/valyala/fasthttp"
-	"json"
 	"log"
 	"runtime/debug"
 	"strconv"
