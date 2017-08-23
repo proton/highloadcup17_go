@@ -64,7 +64,7 @@ func AgeToBirthday(age int) int {
 	// from dateutil.relativedelta import relativedelta
 	// import calendar
 
-	birthday := time.Now().AddDate(age, 0, 0)
+	birthday := time.Now().AddDate(-age, 0, 0)
 	return int(birthday.Unix())
 	// birthday = time.Date(now.Year(), time.November, 10, 23, 0, 0, 0, time.UTC)
 	// now = datetime.now() - relativedelta(years = fromAge)
@@ -94,10 +94,13 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 	}
 	// if fromAge != nil || toAge != nil {
 	// 	age := BirthDateToAge(visit.User.BirthDate)
-	if fromAge != nil && visit.User.BirthDate <= AgeToBirthday(*fromAge) {
-		return false
+	// if fromAge != nil && visit.User.BirthDate >= AgeToBirthday(*fromAge) {
+	// 	return false
+	// }
+	if toAge != nil {
+		fmt.Println(*toAge, visit.User.BirthDate, AgeToBirthday(*toAge))
 	}
-	if toAge != nil && visit.User.BirthDate >= AgeToBirthday(*toAge) {
+	if toAge != nil && visit.User.BirthDate <= AgeToBirthday(*toAge) {
 		return false
 	}
 	// }
