@@ -30,41 +30,11 @@ type VisitsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-// func (entity *Visit) Update(data *JsonData, lock bool) {
-// 	if lock {
-// 		entity.Mutex.Lock()
-// 	}
-// 	for key, value := range *data {
-// 		switch key {
-// 		case "id":
-// 			entity.Id = int(value.(float64))
-// 		case "location":
-// 			entity.LocationId = int(value.(float64))
-// 			location, _ := Locations.Find(entity.LocationId)
-// 			entity.Location = location
-// 			LocationsVisits.addVisit(entity.LocationId, entity)
-// 		case "user":
-// 			entity.UserId = int(value.(float64))
-// 			user, _ := Users.Find(entity.UserId)
-// 			entity.User = user
-// 			UsersVisits.addVisit(entity.UserId, entity)
-// 		case "visited_at":
-// 			entity.VisitedAt = int(value.(float64))
-// 		case "mark":
-// 			entity.Mark = int(value.(float64))
-// 		}
-// 	}
-// 	if lock {
-// 		entity.Mutex.Unlock()
-// 	}
-// }
-
 func (entity *Visit) Update(data *JsonData, lock bool) {
 	sync_user := false
 	sync_location := false
 	if lock {
 		entity.Mutex.Lock()
-		defer entity.Mutex.Unlock()
 	}
 	for key, value := range *data {
 		switch key {
@@ -73,24 +43,27 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 		case "location":
 			entity.LocationId = int(value.(float64))
 			sync_location = true
+			location, _ := Locations.Find(entity.LocationId)
+			entity.Location = location
 		case "user":
 			entity.UserId = int(value.(float64))
 			sync_user = true
+			user, _ := Users.Find(entity.UserId)
+			entity.User = user
 		case "visited_at":
 			entity.VisitedAt = int(value.(float64))
 		case "mark":
 			entity.Mark = int(value.(float64))
 		}
 	}
+	if lock {
+		entity.Mutex.Unlock()
+	}
 
 	if sync_location {
-		location, _ := Locations.Find(entity.LocationId)
-		entity.Location = location
 		LocationsVisits.addVisit(entity.LocationId, entity)
 	}
 	if sync_user {
-		user, _ := Users.Find(entity.UserId)
-		entity.User = user
 		UsersVisits.addVisit(entity.UserId, entity)
 	}
 }

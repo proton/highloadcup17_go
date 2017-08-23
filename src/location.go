@@ -99,9 +99,9 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 	if fromAge != nil && visit.User.BirthDate >= AgeToBirthday(*fromAge) {
 		return false
 	}
-	if toAge != nil {
-		fmt.Println(*toAge, visit.User.BirthDate, AgeToBirthday(*toAge), BirthDateToAge(visit.User.BirthDate), BirthDateToAge(AgeToBirthday(*toAge)), (visit.User.BirthDate <= AgeToBirthday(*toAge)), visit.Mark)
-	}
+	// if toAge != nil {
+	// 	fmt.Println(*toAge, visit.User.BirthDate, AgeToBirthday(*toAge), BirthDateToAge(visit.User.BirthDate), BirthDateToAge(AgeToBirthday(*toAge)), (visit.User.BirthDate <= AgeToBirthday(*toAge)), visit.Mark)
+	// }
 	if toAge != nil && visit.User.BirthDate <= AgeToBirthday(*toAge) {
 		return false
 	}
