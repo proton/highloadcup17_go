@@ -207,6 +207,6 @@ func render404(ctx *fasthttp.RequestCtx) {
 }
 
 func renderEmpty(ctx *fasthttp.RequestCtx) {
-	ctx.SetBody([]byte("{}"))
+	ctx.WriteString("{}")
 	// ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
