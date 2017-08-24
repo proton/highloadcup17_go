@@ -90,6 +90,9 @@ func AgeToBirthday(age int) int {
 func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) bool {
 	visit.Mutex.RLock()
 	defer visit.Mutex.RUnlock()
+	if visit.LocationId != entity.Id {
+		return false
+	}
 	if fromDate != nil && visit.VisitedAt < *fromDate {
 		return false
 	}
