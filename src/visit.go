@@ -17,6 +17,7 @@ type Visit struct {
 	Mutex      sync.RWMutex `json:"-"`
 	Location   *Location    `json:"-"`
 	User       *User        `json:"-"`
+	Json       []byte       `json:"-"`
 }
 
 type VisitView struct {
@@ -56,6 +57,7 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 			entity.Mark = int(value.(float64))
 		}
 	}
+	entity.cacheJSON()
 	if lock {
 		entity.Mutex.Unlock()
 	}
@@ -68,9 +70,14 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 }
 
-func (entity *Visit) toJson(w io.Writer) {
+func (entity *Visit) cacheJSON() {
+	b, _ := json.Marshal(entity)
+	entity.Json = b
+}
+
+func (entity *Visit) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	w.Write(entity.Json)
 	entity.Mutex.RUnlock()
 }
 

@@ -19,6 +19,7 @@ type User struct {
 	Gender    string       `json:"gender"`
 	BirthDate int          `json:"birth_date"`
 	Mutex     sync.RWMutex `json:"-"`
+	Json      []byte       `json:"-"`
 }
 
 type UsersRepo struct {
@@ -46,14 +47,20 @@ func (entity *User) Update(data *JsonData, lock bool) {
 			entity.BirthDate = int(value.(float64))
 		}
 	}
+	entity.cacheJSON()
 	if lock {
 		entity.Mutex.Unlock()
 	}
 }
 
-func (entity *User) toJson(w io.Writer) {
+func (entity *User) cacheJSON() {
+	b, _ := json.Marshal(entity)
+	entity.Json = b
+}
+
+func (entity *User) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	w.Write(entity.Json)
 	entity.Mutex.RUnlock()
 }
 

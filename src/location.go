@@ -18,6 +18,7 @@ type Location struct {
 	City     string       `json:"city"`
 	Distance int          `json:"distance"`
 	Mutex    sync.RWMutex `json:"-"`
+	Json     []byte       `json:"-"`
 }
 
 type LocationsRepo struct {
@@ -43,14 +44,20 @@ func (entity *Location) Update(data *JsonData, lock bool) {
 			entity.Distance = int(value.(float64))
 		}
 	}
+	entity.cacheJSON()
 	if lock {
 		entity.Mutex.Unlock()
 	}
 }
 
-func (entity *Location) toJson(w io.Writer) {
+func (entity *Location) cacheJSON() {
+	b, _ := json.Marshal(entity)
+	entity.Json = b
+}
+
+func (entity *Location) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
-	json.NewEncoder(w).Encode(entity)
+	w.Write(entity.Json)
 	entity.Mutex.RUnlock()
 }
 

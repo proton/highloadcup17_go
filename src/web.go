@@ -192,7 +192,7 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {
-	entity.toJson(ctx)
+	entity.writeJSON(ctx)
 	// ctx.SetConnectionClose() // https://github.com/sat2707/hlcupdocs/issues/37
 }
 
