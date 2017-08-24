@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "fmt"
+	// "fmt"
 	//"github.com/pquerna/ffjson/ffjson"
 	"encoding/json"
 	"github.com/valyala/fasthttp"

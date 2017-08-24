@@ -4,38 +4,6 @@ https://github.com/mailru/easyjson
 https://github.com/pquerna/ffjson
 Tip 2: Pooling the buffer
 
-- фокус на точности!
-
 - array вместо map 1_000_002 - visits
 
 - json стандартный?
-
-- fix average
-
-
-        /tmp/gopath/src/github.com/valyala/fasthttp/workerpool.go:182 +0x35
-created by github.com/valyala/fasthttp.(*workerPool).getCh
-        /tmp/gopath/src/github.com/valyala/fasthttp/workerpool.go:184 +0x135
-
-%!s(MISSING)
-Timeout
-
-
-WEB SERVER ERROR: GET /users/168/visits - goroutine 29095879 [running]:
-runtime/debug.Stack(0x0, 0xc423b11200, 0x11)
-        /usr/lib/go-1.8/src/runtime/debug/stack.go:24 +0x79
-main.timeoutHandler(0xc43e45a480)
-        /home/proton/projects/contests/highloadcup17_go/src/web.go:38 +0x27f
-github.com/valyala/fasthttp.(*Server).serveConn(0xc420016280, 0x82fd80, 0xc429eb1770, 0xc43deb1c01, 0xc440700101)
-        /tmp/gopath/src/github.com/valyala/fasthttp/server.go:1555 +0x59d
-github.com/valyala/fasthttp.(*Server).(github.com/valyala/fasthttp.serveConn)-fm(0x82fd80, 0xc429eb1770, 0xc440700778, 0xc420712301)
-        /tmp/gopath/src/github.com/valyala/fasthttp/server.go:1269 +0x3e
-github.com/valyala/fasthttp.(*workerPool).workerFunc(0xc420022080, 0xc42bcb2400)
-        /tmp/gopath/src/github.com/valyala/fasthttp/workerpool.go:210 +0xde
-github.com/valyala/fasthttp.(*workerPool).getCh.func1(0xc420022080, 0xc42bcb2400, 0x6767e0, 0xc42bcb2400)
-        /tmp/gopath/src/github.com/valyala/fasthttp/workerpool.go:182 +0x35
-created by github.com/valyala/fasthttp.(*workerPool).getCh
-        /tmp/gopath/src/github.com/valyala/fasthttp/workerpool.go:184 +0x135
-
-%!s(MISSING)
-Timeout
