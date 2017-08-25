@@ -46,13 +46,13 @@ func initVars() {
 		Mutex:      sync.RWMutex{}}
 }
 
-func entity_repo(entity_kind string) EntityRepo {
-	switch entity_kind {
-	case "users":
+func entity_repo(entity_kind_len int) EntityRepo {
+	switch entity_kind_len {
+	case 5: //"users":
 		return &Users
-	case "locations":
+	case 9: //"locations":
 		return &Locations
-	case "visits":
+	case 6: //"visits":
 		return &Visits
 	}
 	return nil
@@ -80,7 +80,7 @@ func loadInitialData() {
 			json.Unmarshal(b, &data)
 			json_objects := data[entity_kind]
 
-			repo := entity_repo(entity_kind)
+			repo := entity_repo(len(entity_kind))
 			for _, json_object := range json_objects {
 				repo.Create(&json_object)
 			}
