@@ -8,7 +8,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"log"
 	// "runtime/debug"
-	"strconv"
 	// "time"
 )
 
@@ -100,16 +99,14 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func extractUintParam(args *fasthttp.Args, key string) (*int, bool) {
-	param := args.Peek(key)
-	if param == nil {
+	param_uint, err := args.GetUint(key)
+	if err == fasthttp.ErrNoArgValue {
 		return nil, true
-	}
-	param_int, err := strconv.Atoi(string(param))
-	if err != nil {
+	} else if err != nil {
 		return nil, false
+	} else {
+		return &param_uint, true
 	}
-	param_uint := int(param_int)
-	return &param_uint, true
 }
 
 func extractStringParam(args *fasthttp.Args, key string) (*string, bool) {
