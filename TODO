@@ -12,3 +12,16 @@ Tip 2: Pooling the buffer
 sync.Pool is your best friend.
 
 Profile your program in production. go tool pprof --alloc_objects your-program mem.pprof usually gives better insights for optimization opportunities than go tool pprof your-program cpu.pprof.
+
+Можно еще действительно перейти с map на array, как хотел
+cap(array)
+
+null detection to []byte!!
+
+https://github.com/buger/jsonparser
+
+Golang 1.9 - docker
+
+Golang 1.9: A new type in the sync package serves as a concurrent map with amortized-constant-time loads, stores, and deletes. Thus, multiple go routines can call a map's methods concurrently.
+
+Тут простой вариант описан https://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs По ссылкам проект слегка переехал, но все работает
