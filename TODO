@@ -4,19 +4,14 @@ https://github.com/mailru/easyjson
 https://github.com/pquerna/ffjson
 Tip 2: Pooling the buffer
 
-- array вместо map 1_000_002 - visits
-
-- json стандартный?
-
 
 sync.Pool is your best friend.
 
 Profile your program in production. go tool pprof --alloc_objects your-program mem.pprof usually gives better insights for optimization opportunities than go tool pprof your-program cpu.pprof.
 
 Можно еще действительно перейти с map на array, как хотел
+array вместо map 1_000_002 - visits
 cap(array)
-
-null detection to []byte!!
 
 https://github.com/buger/jsonparser
 

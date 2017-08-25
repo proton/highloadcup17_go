@@ -9,7 +9,6 @@ import (
 	"log"
 	// "runtime/debug"
 	"strconv"
-	"strings"
 	// "time"
 )
 
@@ -49,6 +48,7 @@ var (
 	B_VISITS      = []byte("visits")
 	B_NEW         = []byte("new")
 	B_AVG         = []byte("avg")
+	NULL_CHECK    = []byte(": null")
 )
 
 func requestHandler(ctx *fasthttp.RequestCtx) {
@@ -166,7 +166,7 @@ type JsonDataArray map[string][]JsonData
 func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
 	var data JsonData
 	body := ctx.PostBody()
-	if strings.Contains(string(body), ": null") {
+	if bytes.Contains(body, NULL_CHECK) {
 		return nil
 	}
 	err := json.Unmarshal(body, &data)
