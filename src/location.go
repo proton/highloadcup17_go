@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	//"github.com/pquerna/ffjson/ffjson"
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
+	// "encoding/json"
 	"github.com/valyala/fasthttp"
 	"io"
 	"strconv"
@@ -51,7 +51,7 @@ func (entity *Location) Update(data *JsonData, lock bool) {
 }
 
 func (entity *Location) cacheJSON() {
-	b, _ := json.Marshal(entity)
+	b, _ := ffjson.Marshal(entity)
 	entity.Json = b
 }
 

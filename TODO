@@ -1,9 +1,4 @@
-- faster json?
-https://github.com/mailru/easyjson
-
-https://github.com/pquerna/ffjson
 Tip 2: Pooling the buffer
-
 
 sync.Pool is your best friend.
 
@@ -18,5 +13,3 @@ https://github.com/buger/jsonparser
 Golang 1.9: A new type in the sync package serves as a concurrent map with amortized-constant-time loads, stores, and deletes. Thus, multiple go routines can call a map's methods concurrently.
 
 Тут простой вариант описан https://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs По ссылкам проект слегка переехал, но все работает
-
-cat phout.log|awk '{print $3}'|perl -lane '$s+=$_;$c++;END{print "Sum $s\tCnt: $c\tAvg: ".$s/$c;}'

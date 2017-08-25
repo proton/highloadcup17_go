@@ -1,8 +1,8 @@
 package main
 
 import (
-	//"github.com/pquerna/ffjson/ffjson"
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
+	// "encoding/json"
 	// "fmt"
 	"io"
 	"sync"
@@ -71,7 +71,7 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 }
 
 func (entity *Visit) cacheJSON() {
-	b, _ := json.Marshal(entity)
+	b, _ := ffjson.Marshal(entity)
 	entity.Json = b
 }
 

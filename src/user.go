@@ -2,8 +2,8 @@ package main
 
 import (
 	// "fmt"
-	//"github.com/pquerna/ffjson/ffjson"
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
+	// "encoding/json"
 	"github.com/valyala/fasthttp"
 	"io"
 	"sort"
@@ -54,7 +54,7 @@ func (entity *User) Update(data *JsonData, lock bool) {
 }
 
 func (entity *User) cacheJSON() {
-	b, _ := json.Marshal(entity)
+	b, _ := ffjson.Marshal(entity)
 	entity.Json = b
 }
 
@@ -120,7 +120,7 @@ func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *int, toDat
 		if first == false {
 			w.WriteString(",")
 		}
-		json.NewEncoder(w).Encode(visit.ToView())
+		ffjson.NewEncoder(w).Encode(visit.ToView())
 		first = false
 	}
 	w.WriteString("]}")
