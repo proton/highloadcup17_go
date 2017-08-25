@@ -61,7 +61,7 @@ func entity_repo(entity_kind_len int) EntityRepo {
 
 func loadInitialData() {
 	fmt.Println("DataLoading: starting")
-	r, err := zip.OpenReader(DATA_PATH)
+	r, err := zip.OpenReader(*DATA_PATH)
 	if err != nil {
 		log.Fatal(err)
 	}
