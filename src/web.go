@@ -99,8 +99,8 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	render404(ctx)
 }
 
-func extractUintParam(ctx *fasthttp.RequestCtx, key string) (*int, bool) {
-	param := ctx.QueryArgs().Peek(key)
+func extractUintParam(args *fasthttp.Args, key string) (*int, bool) {
+	param := args.Peek(key)
 	if param == nil {
 		return nil, true
 	}
@@ -112,8 +112,8 @@ func extractUintParam(ctx *fasthttp.RequestCtx, key string) (*int, bool) {
 	return &param_uint, true
 }
 
-func extractStringParam(ctx *fasthttp.RequestCtx, key string) (*string, bool) {
-	param := ctx.QueryArgs().Peek(key)
+func extractStringParam(args *fasthttp.Args, key string) (*string, bool) {
+	param := args.Peek(key)
 	if param == nil {
 		return nil, true
 	}
@@ -122,15 +122,16 @@ func extractStringParam(ctx *fasthttp.RequestCtx, key string) (*string, bool) {
 }
 
 func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
-	fromDate, ok := extractUintParam(ctx, "fromDate")
+	args := ctx.QueryArgs()
+	fromDate, ok := extractUintParam(args, "fromDate")
 	if ok {
-		toDate, ok := extractUintParam(ctx, "toDate")
+		toDate, ok := extractUintParam(args, "toDate")
 		if ok {
-			fromAge, ok := extractUintParam(ctx, "fromAge")
+			fromAge, ok := extractUintParam(args, "fromAge")
 			if ok {
-				toAge, ok := extractUintParam(ctx, "toAge")
+				toAge, ok := extractUintParam(args, "toAge")
 				if ok {
-					gender, ok := extractStringParam(ctx, "gender")
+					gender, ok := extractStringParam(args, "gender")
 					if ok && (gender == nil || validate_gender(*gender)) {
 						location.WriteAvgsJson(ctx, fromDate, toDate, fromAge, toAge, gender)
 						return
@@ -143,13 +144,14 @@ func processLocationAvgs(ctx *fasthttp.RequestCtx, location *Location) {
 }
 
 func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
-	fromDate, ok := extractUintParam(ctx, "fromDate")
+	args := ctx.QueryArgs()
+	fromDate, ok := extractUintParam(args, "fromDate")
 	if ok {
-		toDate, ok := extractUintParam(ctx, "toDate")
+		toDate, ok := extractUintParam(args, "toDate")
 		if ok {
-			country, ok := extractStringParam(ctx, "country")
+			country, ok := extractStringParam(args, "country")
 			if ok {
-				toDistance, ok := extractUintParam(ctx, "toDistance")
+				toDistance, ok := extractUintParam(args, "toDistance")
 				if ok {
 					user.WriteVisitsJson(ctx, fromDate, toDate, country, toDistance)
 					return
