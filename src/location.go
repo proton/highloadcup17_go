@@ -68,12 +68,16 @@ func (entity *Location) writeJSON(w io.Writer) {
 // 	return age
 // }
 
-func AgeToBirthday(age int) int {
-	birthday := time.Now().AddDate(-age, 0, 0)
-	return int(birthday.Unix())
+func AgeToBirthday(age *int) *int {
+	if age == nil {
+		return nil
+	}
+	birthday := time.Now().AddDate(-*age, 0, 0)
+	birthday_timestamp := int(birthday.Unix())
+	return &birthday_timestamp
 }
 
-func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) bool {
+func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAgeBirthday *int, toAgeBirthday *int, gender *string) bool {
 	visit.Mutex.RLock()
 	defer visit.Mutex.RUnlock()
 	if visit.LocationId != entity.Id {
@@ -85,10 +89,10 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 	if toDate != nil && visit.VisitedAt > *toDate {
 		return false
 	}
-	if fromAge != nil && visit.User.BirthDate >= AgeToBirthday(*fromAge) {
+	if fromAgeBirthday != nil && visit.User.BirthDate >= *fromAgeBirthday {
 		return false
 	}
-	if toAge != nil && visit.User.BirthDate <= AgeToBirthday(*toAge) {
+	if toAgeBirthday != nil && visit.User.BirthDate <= *toAgeBirthday {
 		return false
 	}
 	if gender != nil && visit.User.Gender != *gender {
@@ -102,10 +106,13 @@ func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *
 	if visits_repo == nil {
 		return nil
 	}
+	fromAgeBirthday := AgeToBirthday(fromAge)
+	toAgeBirthday := AgeToBirthday(toAge)
+
 	visits_repo.Mutex.RLock()
 	filteredVisits := make([]*Visit, 0, len(visits_repo.Collection))
 	for _, visit := range visits_repo.Collection {
-		if !entity.checkVisit(visit, fromDate, toDate, fromAge, toAge, gender) {
+		if !entity.checkVisit(visit, fromDate, toDate, fromAgeBirthday, toAgeBirthday, gender) {
 			continue
 		}
 		filteredVisits = append(filteredVisits, visit)

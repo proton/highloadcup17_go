@@ -12,8 +12,3 @@ Tip 2: Pooling the buffer
 sync.Pool is your best friend.
 
 Profile your program in production. go tool pprof --alloc_objects your-program mem.pprof usually gives better insights for optimization opportunities than go tool pprof your-program cpu.pprof.
-
-###
-
-https://github.com/AterCattus/highloadcup_tester/blob/master/main.go
-string -> byte[]
