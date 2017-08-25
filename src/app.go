@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	addr = flag.String("addr", ":9000", "TCP address to listen to")
+	ADDR      = flag.String("addr", ":80", "TCP address to listen to")
+	DATA_PATH = flag.String("data", "/tmp/data/data.zip", "Initial data zipfile path")
 )
 
 var (
@@ -60,7 +61,7 @@ func entity_repo(entity_kind_len int) EntityRepo {
 
 func loadInitialData() {
 	fmt.Println("DataLoading: starting")
-	r, err := zip.OpenReader("/tmp/data/data.zip")
+	r, err := zip.OpenReader(DATA_PATH)
 	if err != nil {
 		log.Fatal(err)
 	}

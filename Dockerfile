@@ -6,4 +6,4 @@ ENV GOMAXPROCS=4
 ADD src/*.go ./
 RUN go build -o app *.go
 EXPOSE 80
-CMD ./app --addr :80
+CMD ./app

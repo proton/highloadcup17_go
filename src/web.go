@@ -18,7 +18,7 @@ func startWebServer() {
 	// h := timeoutHandler
 	// h = fasthttp.CompressHandler(h)
 
-	if err := fasthttp.ListenAndServe(*addr, h); err != nil {
+	if err := fasthttp.ListenAndServe(*ADDR, h); err != nil {
 		log.Fatalf("Error in ListenAndServe: %s", err)
 	}
 }
