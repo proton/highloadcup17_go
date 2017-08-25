@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	//"github.com/pquerna/ffjson/ffjson"
 	"encoding/json"
@@ -40,6 +41,16 @@ func startWebServer() {
 // 	}
 // }
 
+var (
+	METHOD_GET    = []byte("GET")
+	PATH_SPLITTER = []byte("/")
+	B_USERS       = []byte("users")
+	B_LOCATIONS   = []byte("locations")
+	B_VISITS      = []byte("visits")
+	B_NEW         = []byte("new")
+	B_AVG         = []byte("avg")
+)
+
 func requestHandler(ctx *fasthttp.RequestCtx) {
 	// ctx.SetContentType("text/plain; charset=utf8")
 	// defer func() {
@@ -49,38 +60,36 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	// 	}
 	// }()
 
-	path := strings.Split(string(ctx.Path()), "/")
-	http_method_is_get := string(ctx.Method()) == "GET"
+	http_method_is_get := bytes.Equal(ctx.Method(), METHOD_GET)
+	path := bytes.Split(ctx.Path(), PATH_SPLITTER)
 	path_len := len(path)
-	entity_kind := path[1]
-	repo := entity_repo(entity_kind)
+	repo := entity_repo(string(path[1])) //TODO
+	if path_len == 3 && !http_method_is_get && bytes.Equal(path[2], B_NEW) {
+		processEntityCreate(ctx, repo)
+		return
+	}
+
+	entity_kind := string(path[2])
 
 	if path_len == 3 {
-		if http_method_is_get {
-			entity, ok := find_entity(repo, &path[2])
-			if ok {
+		entity, ok := find_entity(repo, &entity_kind)
+		if ok {
+			if http_method_is_get {
 				renderEntity(ctx, entity)
-				return
-			}
-		} else if path[2] == "new" {
-			processEntityCreate(ctx, repo)
-			return
-		} else {
-			entity, ok := find_entity(repo, &path[2])
-			if ok {
+			} else {
 				processEntityUpdate(ctx, entity)
-				return
 			}
+			return
 		}
 	} else if path_len == 4 && http_method_is_get {
-		if entity_kind == "users" && path[3] == "visits" {
-			user, ok := find_user(&path[2])
+		if bytes.Equal(path[3], B_VISITS) {
+			user, ok := find_user(&entity_kind)
 			if ok {
 				processUserVisits(ctx, user)
 				return
 			}
-		} else if entity_kind == "locations" && path[3] == "avg" {
-			location, ok := find_location(&path[2])
+		} else if bytes.Equal(path[3], B_AVG) {
+			location, ok := find_location(&entity_kind)
 			if ok {
 				processLocationAvgs(ctx, location)
 				return
