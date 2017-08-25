@@ -1,4 +1,4 @@
-FROM golang
+FROM golang:1.9.0-stretch
 
 RUN go get "github.com/valyala/fasthttp"
 RUN go get "github.com/pquerna/ffjson"
