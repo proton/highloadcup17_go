@@ -173,7 +173,7 @@ func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 // }
 
 func validateJSON(data []byte) bool {
-	return !bytes.Contains(data, NULL_CHECK)
+	return len(data) > 0 && !bytes.Contains(data, NULL_CHECK)
 }
 
 func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
