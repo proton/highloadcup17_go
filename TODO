@@ -8,8 +8,6 @@ Profile your program in production. go tool pprof --alloc_objects your-program m
 array вместо map 1_000_002 - visits
 cap(array)
 
-https://github.com/buger/jsonparser
-
 Golang 1.9: A new type in the sync package serves as a concurrent map with amortized-constant-time loads, stores, and deletes. Thus, multiple go routines can call a map's methods concurrently.
 
 Тут простой вариант описан https://dave.cheney.net/2013/07/07/introducing-profile-super-simple-profiling-for-go-programs По ссылкам проект слегка переехал, но все работает
