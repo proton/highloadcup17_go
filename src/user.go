@@ -12,18 +12,18 @@ import (
 )
 
 type User struct {
-	Id        int          `json:"id"`
+	Id        uint32       `json:"id"`
 	Email     string       `json:"email"`
 	FirstName string       `json:"first_name"`
 	LastName  string       `json:"last_name"`
 	Gender    string       `json:"gender"`
-	BirthDate int          `json:"birth_date"`
+	BirthDate int32        `json:"birth_date"`
 	Mutex     sync.RWMutex `json:"-"`
 	Json      []byte       `json:"-"`
 }
 
 type UsersRepo struct {
-	Collection map[int]*User
+	Collection map[uint32]*User
 	Mutex      sync.RWMutex
 }
 
@@ -73,7 +73,7 @@ func (entity *User) UpdateFromJSON(data []byte, lock bool) {
 		switch idx {
 		case 0:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.Id = int(v)
+				entity.Id = uint32(v)
 			}
 		case 1:
 			if v, er := jsonparser.ParseString(value); er == nil {
@@ -93,7 +93,7 @@ func (entity *User) UpdateFromJSON(data []byte, lock bool) {
 			}
 		case 5:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.BirthDate = int(v)
+				entity.BirthDate = int32(v)
 			}
 		}
 	}, USER_JSON_PATHS...)
@@ -115,7 +115,7 @@ func (entity *User) writeJSON(w io.Writer) {
 	w.Write(entity.Json)
 }
 
-func (entity *User) checkVisit(visit *Visit, fromDate *int, toDate *int, country *string, toDistance *int) bool {
+func (entity *User) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) bool {
 	visit.Mutex.RLock()
 	defer visit.Mutex.RUnlock()
 	if visit.UserId != entity.Id {
@@ -136,7 +136,7 @@ func (entity *User) checkVisit(visit *Visit, fromDate *int, toDate *int, country
 	return true
 }
 
-func (entity *User) Visits(fromDate *int, toDate *int, country *string, toDistance *int) []*Visit {
+func (entity *User) Visits(fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) []*Visit {
 	visits_repo := UsersVisits.findVisitsRepo(entity.Id)
 	if visits_repo == nil {
 		return nil
@@ -153,7 +153,7 @@ func (entity *User) Visits(fromDate *int, toDate *int, country *string, toDistan
 	return visits
 }
 
-func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *int, toDate *int, country *string, toDistance *int) {
+func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *uint32, toDate *uint32, country *string, toDistance *uint32) {
 
 	entity.Mutex.RLock()
 	visits := entity.Visits(fromDate, toDate, country, toDistance)
@@ -203,21 +203,21 @@ func (repo *UsersRepo) Add(entity *User) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *UsersRepo) Find(id int) (*User, bool) {
+func (repo *UsersRepo) Find(id uint32) (*User, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
 	entity, ok := repo.Collection[id]
 	return entity, ok
 }
 
-func (repo *UsersRepo) FindEntity(id int) (Entity, bool) {
+func (repo *UsersRepo) FindEntity(id uint32) (Entity, bool) {
 	return repo.Find(id)
 }
 
 func find_user(entity_id_str *string) (*User, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
-		entity_id := int(entity_id_int)
+		entity_id := uint32(entity_id_int)
 		return Users.Find(entity_id)
 	}
 	return nil, false

@@ -20,3 +20,5 @@ int32
 
 client_8287_1 |DataLoading: extracting zip file
 client_8287_1 |exit status 50
+
+/avg - убрать формирование массива!

@@ -98,15 +98,12 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	render404(ctx)
 }
 
-func extractUintParam(args *fasthttp.Args, key string) (*int, bool) {
-	param_uint, err := args.GetUint(key)
-	if err == fasthttp.ErrNoArgValue {
+func extractUintParam(args *fasthttp.Args, key string) (*uint32, bool) {
+	param := args.Peek(key)
+	if param == nil {
 		return nil, true
-	} else if err != nil {
-		return nil, false
-	} else {
-		return &param_uint, true
 	}
+	return ParseUint32(param)
 }
 
 func extractStringParam(args *fasthttp.Args, key string) (*string, bool) {

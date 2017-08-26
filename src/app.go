@@ -9,7 +9,6 @@ import (
 	// "net/http/pprof"
 	// "runtime/pprof"
 	"sync"
-	"unsafe"
 )
 
 var (
@@ -27,24 +26,20 @@ var (
 
 func initVars() {
 	Users = UsersRepo{
-		Collection: make(map[int]*User),
+		Collection: make(map[uint32]*User),
 		Mutex:      sync.RWMutex{}}
 	Locations = LocationsRepo{
-		Collection: make(map[int]*Location),
+		Collection: make(map[uint32]*Location),
 		Mutex:      sync.RWMutex{}}
 	Visits = VisitsRepo{
-		Collection: make(map[int]*Visit),
+		Collection: make(map[uint32]*Visit),
 		Mutex:      sync.RWMutex{}}
 	UsersVisits = EntityVisitsRepo{
-		Collection: make(map[int]*VisitsRepo),
+		Collection: make(map[uint32]*VisitsRepo),
 		Mutex:      sync.RWMutex{}}
 	LocationsVisits = EntityVisitsRepo{
-		Collection: make(map[int]*VisitsRepo),
+		Collection: make(map[uint32]*VisitsRepo),
 		Mutex:      sync.RWMutex{}}
-}
-
-func bstring(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
 }
 
 func entity_repo(entity_kind_len int) EntityRepo {

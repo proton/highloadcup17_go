@@ -9,11 +9,11 @@ import (
 )
 
 type Visit struct {
-	Id         int          `json:"id"`
-	LocationId int          `json:"location"`
-	UserId     int          `json:"user"`
-	VisitedAt  int          `json:"visited_at"`
-	Mark       int          `json:"mark"`
+	Id         uint32       `json:"id"`
+	LocationId uint32       `json:"location"`
+	UserId     uint32       `json:"user"`
+	VisitedAt  uint32       `json:"visited_at"`
+	Mark       uint8        `json:"mark"`
 	Mutex      sync.RWMutex `json:"-"`
 	Location   *Location    `json:"-"`
 	User       *User        `json:"-"`
@@ -21,13 +21,13 @@ type Visit struct {
 }
 
 type VisitView struct {
-	Mark      int    `json:"mark"`
-	VisitedAt int    `json:"visited_at"`
+	Mark      uint8  `json:"mark"`
+	VisitedAt uint32 `json:"visited_at"`
 	Place     string `json:"place"`
 }
 
 type VisitsRepo struct {
-	Collection map[int]*Visit
+	Collection map[uint32]*Visit
 	Mutex      sync.RWMutex
 }
 
@@ -91,29 +91,29 @@ func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
 		switch idx {
 		case 0:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.Id = int(v)
+				entity.Id = uint32(v)
 			}
 		case 1:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.LocationId = int(v)
+				entity.LocationId = uint32(v)
 				sync_location = true
 				location, _ := Locations.Find(entity.LocationId)
 				entity.Location = location
 			}
 		case 2:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.UserId = int(v)
+				entity.UserId = uint32(v)
 				sync_user = true
 				user, _ := Users.Find(entity.UserId)
 				entity.User = user
 			}
 		case 3:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.VisitedAt = int(v)
+				entity.VisitedAt = uint32(v)
 			}
 		case 4:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.Mark = int(v)
+				entity.Mark = uint8(v)
 			}
 		}
 	}, VISIT_JSON_PATHS...)
@@ -168,17 +168,17 @@ func (repo *VisitsRepo) CreateFromJSON(data []byte) {
 
 func (repo *VisitsRepo) Add(entity *Visit) {
 	repo.Mutex.Lock()
+	defer repo.Mutex.Unlock()
 	repo.Collection[entity.Id] = entity
-	repo.Mutex.Unlock()
 }
 
-func (repo *VisitsRepo) Find(id int) (*Visit, bool) {
+func (repo *VisitsRepo) Find(id uint32) (*Visit, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
 	entity, ok := repo.Collection[id]
 	return entity, ok
 }
 
-func (repo *VisitsRepo) FindEntity(id int) (Entity, bool) {
+func (repo *VisitsRepo) FindEntity(id uint32) (Entity, bool) {
 	return repo.Find(id)
 }

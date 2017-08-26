@@ -12,17 +12,17 @@ import (
 )
 
 type Location struct {
-	Id       int          `json:"id"`
+	Id       uint32       `json:"id"`
 	Place    string       `json:"place"`
 	Country  string       `json:"country"`
 	City     string       `json:"city"`
-	Distance int          `json:"distance"`
+	Distance uint32       `json:"distance"`
 	Mutex    sync.RWMutex `json:"-"`
 	Json     []byte       `json:"-"`
 }
 
 type LocationsRepo struct {
-	Collection map[int]*Location
+	Collection map[uint32]*Location
 	Mutex      sync.RWMutex
 }
 
@@ -69,7 +69,7 @@ func (entity *Location) UpdateFromJSON(data []byte, lock bool) {
 		switch idx {
 		case 0:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.Id = int(v)
+				entity.Id = uint32(v)
 			}
 		case 1:
 			if v, er := jsonparser.ParseString(value); er == nil {
@@ -85,7 +85,7 @@ func (entity *Location) UpdateFromJSON(data []byte, lock bool) {
 			}
 		case 4:
 			if v, er := jsonparser.ParseInt(value); er == nil {
-				entity.Distance = int(v)
+				entity.Distance = uint32(v)
 			}
 		}
 	}, LOCATION_JSON_PATHS...)
@@ -114,16 +114,16 @@ func (entity *Location) writeJSON(w io.Writer) {
 // 	return age
 // }
 
-func AgeToBirthday(age *int) *int {
+func AgeToBirthday(age *uint32) *int32 {
 	if age == nil {
 		return nil
 	}
-	birthday := time.Now().AddDate(-*age, 0, 0)
-	birthday_timestamp := int(birthday.Unix())
+	birthday := time.Now().AddDate(-int(*age), 0, 0)
+	birthday_timestamp := int32(birthday.Unix())
 	return &birthday_timestamp
 }
 
-func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fromAgeBirthday *int, toAgeBirthday *int, gender *string) bool {
+func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, fromAgeBirthday *int32, toAgeBirthday *int32, gender *string) bool {
 	visit.Mutex.RLock()
 	defer visit.Mutex.RUnlock()
 	if visit.LocationId != entity.Id {
@@ -147,7 +147,7 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *int, toDate *int, fro
 	return true
 }
 
-func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) []*Visit {
+func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
 	visits_repo := LocationsVisits.findVisitsRepo(entity.Id)
 	if visits_repo == nil {
 		return nil
@@ -167,7 +167,7 @@ func (entity *Location) Visits(fromDate *int, toDate *int, fromAge *int, toAge *
 	return filteredVisits
 }
 
-func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *int, toDate *int, fromAge *int, toAge *int, gender *string) {
+func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
 
 	entity.Mutex.RLock()
 	visits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
@@ -177,11 +177,11 @@ func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *int, toD
 		w.WriteString("{\"avg\": 0}")
 	} else {
 		marks_count := 0
-		marks_sum := 0
+		marks_sum := int32(0)
 
 		for _, visit := range visits {
 			visit.Mutex.RLock()
-			marks_sum += visit.Mark
+			marks_sum += int32(visit.Mark)
 			marks_count += 1
 			visit.Mutex.RUnlock()
 		}
@@ -217,21 +217,21 @@ func (repo *LocationsRepo) Add(entity *Location) {
 	repo.Mutex.Unlock()
 }
 
-func (repo *LocationsRepo) Find(id int) (*Location, bool) {
+func (repo *LocationsRepo) Find(id uint32) (*Location, bool) {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
 	entity, ok := repo.Collection[id]
 	return entity, ok
 }
 
-func (repo *LocationsRepo) FindEntity(id int) (Entity, bool) {
+func (repo *LocationsRepo) FindEntity(id uint32) (Entity, bool) {
 	return repo.Find(id)
 }
 
 func find_location(entity_id_str *string) (*Location, bool) {
 	entity_id_int, error := strconv.Atoi(*entity_id_str)
 	if error == nil {
-		entity_id := int(entity_id_int)
+		entity_id := uint32(entity_id_int)
 		return Locations.Find(entity_id)
 	}
 	return nil, false
