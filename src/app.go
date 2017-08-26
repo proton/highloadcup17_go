@@ -60,9 +60,6 @@ func entity_repo(entity_kind_len int) EntityRepo {
 	return nil
 }
 
-type JsonData map[string]interface{}
-type JsonDataArray map[string][]JsonData
-
 func loadInitialData() {
 	fmt.Println("DataLoading: starting")
 	r, err := zip.OpenReader(*DATA_PATH)
@@ -89,6 +86,7 @@ func loadInitialData() {
 			}, entity_kind)
 		}
 	}
+	fmt.Println("DataLoading: finished")
 }
 
 func main() {
