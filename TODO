@@ -18,5 +18,3 @@ Golang 1.9: A new type in the sync package serves as a concurrent map with amort
 
 client_8287_1 |DataLoading: extracting zip file
 client_8287_1 |exit status 50
-
-/avg - убрать формирование массива!
