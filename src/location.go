@@ -147,45 +147,31 @@ func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint3
 	return true
 }
 
-func (entity *Location) Visits(fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) []*Visit {
-	visits_repo := LocationsVisits.findVisitsRepo(entity.Id)
-	if visits_repo == nil {
-		return nil
-	}
-	fromAgeBirthday := AgeToBirthday(fromAge)
-	toAgeBirthday := AgeToBirthday(toAge)
-
-	visits_repo.Mutex.RLock()
-	filteredVisits := make([]*Visit, 0, len(visits_repo.Collection))
-	for _, visit := range visits_repo.Collection {
-		if !entity.checkVisit(visit, fromDate, toDate, fromAgeBirthday, toAgeBirthday, gender) {
-			continue
-		}
-		filteredVisits = append(filteredVisits, visit)
-	}
-	visits_repo.Mutex.RUnlock()
-	return filteredVisits
-}
-
 func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *uint32, toDate *uint32, fromAge *uint32, toAge *uint32, gender *string) {
+	marks_count := 0
+	marks_sum := uint32(0)
 
-	entity.Mutex.RLock()
-	visits := entity.Visits(fromDate, toDate, fromAge, toAge, gender)
-	entity.Mutex.RUnlock()
+	visits_repo := LocationsVisits.findVisitsRepo(entity.Id)
+	if visits_repo != nil {
+		fromAgeBirthday := AgeToBirthday(fromAge)
+		toAgeBirthday := AgeToBirthday(toAge)
 
-	if len(visits) == 0 {
-		w.WriteString("{\"avg\": 0}")
-	} else {
-		marks_count := 0
-		marks_sum := int32(0)
-
-		for _, visit := range visits {
-			visit.Mutex.RLock()
-			marks_sum += int32(visit.Mark)
+		visits_repo.Mutex.RLock()
+		for _, visit := range visits_repo.Collection {
+			if !entity.checkVisit(visit, fromDate, toDate, fromAgeBirthday, toAgeBirthday, gender) {
+				continue
+			}
 			marks_count += 1
+			visit.Mutex.RLock()
+			marks_sum += uint32(visit.Mark)
 			visit.Mutex.RUnlock()
 		}
+		visits_repo.Mutex.RUnlock()
+	}
 
+	if marks_count == 0 {
+		w.WriteString("{\"avg\": 0}")
+	} else {
 		avg := float64(marks_sum) / float64(marks_count)
 		avg_str := fmt.Sprintf("%.5f", avg)
 
