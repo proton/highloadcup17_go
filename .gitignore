@@ -2,3 +2,5 @@ push.sh
 app
 cpu.png
 curl-format.txt
+*.pprof
+stats
