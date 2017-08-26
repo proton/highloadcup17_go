@@ -28,34 +28,34 @@ type UsersRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *User) Update(data *JsonData, lock bool) {
-	if lock {
-		entity.Mutex.Lock()
-	}
-	for key, value := range *data {
-		switch key {
-		case "id":
-			entity.Id = int(value.(float64))
-		case "email":
-			entity.Email = value.(string)
-		case "first_name":
-			entity.FirstName = value.(string)
-		case "last_name":
-			entity.LastName = value.(string)
-		case "gender":
-			entity.Gender = value.(string)
-		case "birth_date":
-			entity.BirthDate = int(value.(float64))
-		}
-	}
-	entity.cacheJSON()
-	if lock {
-		entity.Mutex.Unlock()
-	}
-}
+// func (entity *User) Update(data *JsonData, lock bool) {
+// 	if lock {
+// 		entity.Mutex.Lock()
+// 	}
+// 	for key, value := range *data {
+// 		switch key {
+// 		case "id":
+// 			entity.Id = int(value.(float64))
+// 		case "email":
+// 			entity.Email = value.(string)
+// 		case "first_name":
+// 			entity.FirstName = value.(string)
+// 		case "last_name":
+// 			entity.LastName = value.(string)
+// 		case "gender":
+// 			entity.Gender = value.(string)
+// 		case "birth_date":
+// 			entity.BirthDate = int(value.(float64))
+// 		}
+// 	}
+// 	entity.cacheJSON()
+// 	if lock {
+// 		entity.Mutex.Unlock()
+// 	}
+// }
 
 var (
-	ENTITY_JSON_PATHS = [][]string{
+	USER_JSON_PATHS = [][]string{
 		[]string{"id"},
 		[]string{"email"},
 		[]string{"first_name"},
@@ -97,7 +97,7 @@ func (entity *User) UpdateFromJSON(data []byte, lock bool) {
 				entity.BirthDate = int(v)
 			}
 		}
-	}, ENTITY_JSON_PATHS...)
+	}, USER_JSON_PATHS...)
 
 	entity.cacheJSON()
 	if lock {
@@ -186,11 +186,11 @@ func (repo *UsersRepo) InitEntity() *User {
 	return &User{}
 }
 
-func (repo *UsersRepo) Create(data *JsonData) {
-	entity := repo.InitEntity()
-	entity.Update(data, false)
-	repo.Add(entity)
-}
+// func (repo *UsersRepo) Create(data *JsonData) {
+// 	entity := repo.InitEntity()
+// 	entity.Update(data, false)
+// 	repo.Add(entity)
+// }
 
 func (repo *UsersRepo) CreateFromJSON(data []byte) {
 	entity := repo.InitEntity()

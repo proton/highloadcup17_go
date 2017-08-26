@@ -32,32 +32,93 @@ type VisitsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-func (entity *Visit) Update(data *JsonData, lock bool) {
+// func (entity *Visit) Update(data *JsonData, lock bool) {
+// sync_user := false
+// sync_location := false
+// 	if lock {
+// 		entity.Mutex.Lock()
+// 	}
+// 	for key, value := range *data {
+// 		switch key {
+// 		case "id":
+// 			entity.Id = int(value.(float64))
+// 		case "location":
+// 			entity.LocationId = int(value.(float64))
+// 			sync_location = true
+// 			location, _ := Locations.Find(entity.LocationId)
+// 			entity.Location = location
+// 		case "user":
+// 			entity.UserId = int(value.(float64))
+// 			sync_user = true
+// 			user, _ := Users.Find(entity.UserId)
+// 			entity.User = user
+// 		case "visited_at":
+// 			entity.VisitedAt = int(value.(float64))
+// 		case "mark":
+// 			entity.Mark = int(value.(float64))
+// 		}
+// 	}
+// 	entity.cacheJSON()
+// 	if lock {
+// 		entity.Mutex.Unlock()
+// 	}
+
+// 	if sync_location {
+// 		LocationsVisits.addVisit(entity.LocationId, entity)
+// 	}
+// 	if sync_user {
+// 		UsersVisits.addVisit(entity.UserId, entity)
+// 	}
+// }
+
+var (
+	VISIT_JSON_PATHS = [][]string{
+		[]string{"id"},
+		[]string{"location"},
+		[]string{"user"},
+		[]string{"visited_at"},
+		[]string{"mark"},
+	}
+)
+
+func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
 	sync_user := false
 	sync_location := false
 	if lock {
 		entity.Mutex.Lock()
 	}
-	for key, value := range *data {
-		switch key {
-		case "id":
-			entity.Id = int(value.(float64))
-		case "location":
-			entity.LocationId = int(value.(float64))
-			sync_location = true
-			location, _ := Locations.Find(entity.LocationId)
-			entity.Location = location
-		case "user":
-			entity.UserId = int(value.(float64))
-			sync_user = true
-			user, _ := Users.Find(entity.UserId)
-			entity.User = user
-		case "visited_at":
-			entity.VisitedAt = int(value.(float64))
-		case "mark":
-			entity.Mark = int(value.(float64))
+
+	jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
+		switch idx {
+		case 0:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.Id = int(v)
+			}
+		case 1:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.LocationId = int(v)
+				sync_location = true
+				location, _ := Locations.Find(entity.LocationId)
+				entity.Location = location
+			}
+		case 2:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.UserId = int(v)
+				sync_user = true
+				user, _ := Users.Find(entity.UserId)
+				entity.User = user
+			}
+		case 3:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.VisitedAt = int(v)
+			}
+		case 4:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.Mark = int(v)
+			}
 		}
-	}
+	}, VISIT_JSON_PATHS...)
+
 	entity.cacheJSON()
 	if lock {
 		entity.Mutex.Unlock()
@@ -68,33 +129,6 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 	if sync_user {
 		UsersVisits.addVisit(entity.UserId, entity)
-	}
-}
-
-func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
-	if lock {
-		entity.Mutex.Lock()
-	}
-	jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		// fmt.Println(jsonparser.Get(value, "url"))
-	}, "person", "avatars")
-	// for key, value := range *data {
-	// 	switch key {
-	// 	case "id":
-	// 		entity.Id = int(value.(float64))
-	// 	case "place":
-	// 		entity.Place = value.(string)
-	// 	case "country":
-	// 		entity.Country = value.(string)
-	// 	case "city":
-	// 		entity.City = value.(string)
-	// 	case "distance":
-	// 		entity.Distance = int(value.(float64))
-	// 	}
-	// }
-	entity.cacheJSON()
-	if lock {
-		entity.Mutex.Unlock()
 	}
 }
 
@@ -121,11 +155,11 @@ func (repo *VisitsRepo) InitEntity() *Visit {
 	return &entity
 }
 
-func (repo *VisitsRepo) Create(data *JsonData) {
-	entity := repo.InitEntity()
-	entity.Update(data, false)
-	repo.Add(entity)
-}
+// func (repo *VisitsRepo) Create(data *JsonData) {
+// 	entity := repo.InitEntity()
+// 	entity.Update(data, false)
+// 	repo.Add(entity)
+// }
 
 func (repo *VisitsRepo) CreateFromJSON(data []byte) {
 	entity := repo.InitEntity()

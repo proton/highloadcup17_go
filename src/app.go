@@ -4,7 +4,8 @@ import (
 	"archive/zip"
 	"flag"
 	"fmt"
-	"github.com/pquerna/ffjson/ffjson"
+	"github.com/buger/jsonparser"
+	// "github.com/pquerna/ffjson/ffjson"
 	// "encoding/json"
 	// "github.com/pkg/profile"
 	"io/ioutil"
@@ -78,16 +79,14 @@ func loadInitialData() {
 			}
 			fmt.Println("DataLoading: loading", f.Name)
 
-			rc, _ := f.Open()
-			b, _ := ioutil.ReadAll(rc)
-			data := make(JsonDataArray)
-			ffjson.Unmarshal(b, &data)
-			json_objects := data[entity_kind]
-
 			repo := entity_repo(len(entity_kind))
-			for _, json_object := range json_objects {
-				repo.Create(&json_object)
-			}
+
+			rc, _ := f.Open()
+			data, _ := ioutil.ReadAll(rc)
+
+			jsonparser.ArrayEach(data, func(object_data []byte, dataType jsonparser.ValueType, offset int, err error) {
+				repo.CreateFromJSON(object_data)
+			}, entity_kind)
 		}
 	}
 }
