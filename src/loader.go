@@ -12,7 +12,7 @@ import (
 func loadInitialData() {
 	fmt.Println("DataLoading: starting")
 
-	file_path := *DATA_DIR + "data.zip"
+	file_path := *DATAZIP_PATH
 	if _, err := os.Stat(file_path); !os.IsNotExist(err) {
 		fmt.Println("DataLoading: extracting zip file")
 		cmd := exec.Command("unzip", file_path, "-d", *DATA_DIR)

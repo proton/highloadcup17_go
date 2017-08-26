@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	ADDR     = flag.String("addr", ":80", "TCP address to listen to")
-	DATA_DIR = flag.String("data", "/tmp/data/", "Directory with zipfile path")
+	ADDR         = flag.String("addr", ":80", "TCP address to listen to")
+	DATAZIP_PATH = flag.String("zip", "/tmp/data/data.zip", "Zipfile path")
+	DATA_DIR     = flag.String("data", "/", "Directory with extacted jsons")
 )
 
 var (
@@ -67,6 +68,13 @@ func main() {
 	// go http.ListenAndServe(":8080", r)
 
 	loadInitialData()
+
+	// defer func() {
+	// 	if fd, err := os.Create(`pprof.mem`); err == nil {
+	// 		pprof.WriteHeapProfile(fd)
+	// 		fd.Close()
+	// 	}
+	// }()
 
 	// defer profile.Start().Stop()
 	startWebServer()
