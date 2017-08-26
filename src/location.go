@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/buger/jsonparser"
 	"github.com/pquerna/ffjson/ffjson"
-	// "encoding/json"
 	"github.com/valyala/fasthttp"
 	"io"
 	"strconv"
@@ -104,8 +103,8 @@ func (entity *Location) cacheJSON() {
 
 func (entity *Location) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
+	defer entity.Mutex.RUnlock()
 	w.Write(entity.Json)
-	entity.Mutex.RUnlock()
 }
 
 // func BirthDateToAge(BirthDate int) int {

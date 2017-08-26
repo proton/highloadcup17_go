@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/buger/jsonparser"
 	"github.com/pquerna/ffjson/ffjson"
-	// "encoding/json"
 	// "fmt"
 	"io"
 	"sync"
@@ -119,7 +118,7 @@ func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
 		}
 	}, VISIT_JSON_PATHS...)
 
-	entity.cacheJSON()
+	// entity.cacheJSON() // Too much memory :(
 	if lock {
 		entity.Mutex.Unlock()
 	}
@@ -139,8 +138,8 @@ func (entity *Visit) cacheJSON() {
 
 func (entity *Visit) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
-	w.Write(entity.Json)
-	entity.Mutex.RUnlock()
+	defer entity.Mutex.RUnlock()
+	ffjson.NewEncoder(w).Encode(entity)
 }
 
 func (visit *Visit) ToView() *VisitView {

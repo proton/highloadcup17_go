@@ -4,7 +4,6 @@ import (
 	// "fmt"
 	"github.com/buger/jsonparser"
 	"github.com/pquerna/ffjson/ffjson"
-	// "encoding/json"
 	"github.com/valyala/fasthttp"
 	"io"
 	"sort"
@@ -112,8 +111,8 @@ func (entity *User) cacheJSON() {
 
 func (entity *User) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
+	defer entity.Mutex.RUnlock()
 	w.Write(entity.Json)
-	entity.Mutex.RUnlock()
 }
 
 func (entity *User) checkVisit(visit *Visit, fromDate *int, toDate *int, country *string, toDistance *int) bool {
