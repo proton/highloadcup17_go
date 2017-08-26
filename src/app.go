@@ -4,8 +4,8 @@ import (
 	"archive/zip"
 	"flag"
 	"fmt"
-	//"github.com/pquerna/ffjson/ffjson"
-	"encoding/json"
+	"github.com/pquerna/ffjson/ffjson"
+	// "encoding/json"
 	// "github.com/pkg/profile"
 	"io/ioutil"
 	"log"
@@ -59,6 +59,9 @@ func entity_repo(entity_kind_len int) EntityRepo {
 	return nil
 }
 
+type JsonData map[string]interface{}
+type JsonDataArray map[string][]JsonData
+
 func loadInitialData() {
 	fmt.Println("DataLoading: starting")
 	r, err := zip.OpenReader(*DATA_PATH)
@@ -78,7 +81,7 @@ func loadInitialData() {
 			rc, _ := f.Open()
 			b, _ := ioutil.ReadAll(rc)
 			data := make(JsonDataArray)
-			json.Unmarshal(b, &data)
+			ffjson.Unmarshal(b, &data)
 			json_objects := data[entity_kind]
 
 			repo := entity_repo(len(entity_kind))

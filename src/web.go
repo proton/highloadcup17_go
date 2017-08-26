@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	//"github.com/pquerna/ffjson/ffjson"
-	"encoding/json"
+	// "encoding/json"
 	"github.com/valyala/fasthttp"
 	"log"
 	// "runtime/debug"
@@ -159,44 +159,46 @@ func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 	render400(ctx)
 }
 
-type JsonData map[string]interface{}
-type JsonDataArray map[string][]JsonData
+// func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
+// 	var data JsonData
+// 	body := ctx.PostBody()
+// 	if bytes.Contains(body, NULL_CHECK) {
+// 		return nil
+// 	}
+// 	err := json.Unmarshal(body, &data)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	return &data
+// }
 
-func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
-	var data JsonData
-	body := ctx.PostBody()
-	if bytes.Contains(body, NULL_CHECK) {
-		return nil
-	}
-	err := json.Unmarshal(body, &data)
-	if err != nil {
-		return nil
-	}
-	return &data
+func validateJSON(data []byte) bool {
+	return !bytes.Contains(data, NULL_CHECK)
 }
 
 func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
-	data := loadJSON(ctx)
-	if data == nil {
+	data := ctx.PostBody()
+	if !validateJSON(data) {
 		render400(ctx)
 		return
 	}
 	// entity.Update(data, true)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go entity.Update(data, true)
+	// go entity.Update(data, true)
+	go entity.UpdateFromJSON(data, true)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
-	data := loadJSON(ctx)
-	if data == nil {
+	data := ctx.PostBody()
+	if !validateJSON(data) {
 		render400(ctx)
 		return
 	}
 	// repo.Create(data)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go repo.Create(data)
+	go repo.CreateFromJSON(data)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/buger/jsonparser"
 	"github.com/pquerna/ffjson/ffjson"
 	// "encoding/json"
 	// "fmt"
@@ -70,6 +71,33 @@ func (entity *Visit) Update(data *JsonData, lock bool) {
 	}
 }
 
+func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
+	if lock {
+		entity.Mutex.Lock()
+	}
+	jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		// fmt.Println(jsonparser.Get(value, "url"))
+	}, "person", "avatars")
+	// for key, value := range *data {
+	// 	switch key {
+	// 	case "id":
+	// 		entity.Id = int(value.(float64))
+	// 	case "place":
+	// 		entity.Place = value.(string)
+	// 	case "country":
+	// 		entity.Country = value.(string)
+	// 	case "city":
+	// 		entity.City = value.(string)
+	// 	case "distance":
+	// 		entity.Distance = int(value.(float64))
+	// 	}
+	// }
+	entity.cacheJSON()
+	if lock {
+		entity.Mutex.Unlock()
+	}
+}
+
 func (entity *Visit) cacheJSON() {
 	b, _ := ffjson.Marshal(entity)
 	entity.Json = b
@@ -96,6 +124,12 @@ func (repo *VisitsRepo) InitEntity() *Visit {
 func (repo *VisitsRepo) Create(data *JsonData) {
 	entity := repo.InitEntity()
 	entity.Update(data, false)
+	repo.Add(entity)
+}
+
+func (repo *VisitsRepo) CreateFromJSON(data []byte) {
+	entity := repo.InitEntity()
+	entity.UpdateFromJSON(data, false)
 	repo.Add(entity)
 }
 

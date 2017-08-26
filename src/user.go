@@ -2,6 +2,7 @@ package main
 
 import (
 	// "fmt"
+	"github.com/buger/jsonparser"
 	"github.com/pquerna/ffjson/ffjson"
 	// "encoding/json"
 	"github.com/valyala/fasthttp"
@@ -47,6 +48,57 @@ func (entity *User) Update(data *JsonData, lock bool) {
 			entity.BirthDate = int(value.(float64))
 		}
 	}
+	entity.cacheJSON()
+	if lock {
+		entity.Mutex.Unlock()
+	}
+}
+
+var (
+	ENTITY_JSON_PATHS = [][]string{
+		[]string{"id"},
+		[]string{"email"},
+		[]string{"first_name"},
+		[]string{"last_name"},
+		[]string{"gender"},
+		[]string{"birth_date"},
+	}
+)
+
+func (entity *User) UpdateFromJSON(data []byte, lock bool) {
+	if lock {
+		entity.Mutex.Lock()
+	}
+
+	jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
+		switch idx {
+		case 0:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.Id = int(v)
+			}
+		case 1:
+			if v, er := jsonparser.ParseString(value); er == nil {
+				entity.Email = v
+			}
+		case 2:
+			if v, er := jsonparser.ParseString(value); er == nil {
+				entity.FirstName = v
+			}
+		case 3:
+			if v, er := jsonparser.ParseString(value); er == nil {
+				entity.LastName = v
+			}
+		case 4:
+			if v, er := jsonparser.ParseString(value); er == nil {
+				entity.Gender = v
+			}
+		case 5:
+			if v, er := jsonparser.ParseInt(value); er == nil {
+				entity.BirthDate = int(v)
+			}
+		}
+	}, ENTITY_JSON_PATHS...)
+
 	entity.cacheJSON()
 	if lock {
 		entity.Mutex.Unlock()
@@ -137,6 +189,12 @@ func (repo *UsersRepo) InitEntity() *User {
 func (repo *UsersRepo) Create(data *JsonData) {
 	entity := repo.InitEntity()
 	entity.Update(data, false)
+	repo.Add(entity)
+}
+
+func (repo *UsersRepo) CreateFromJSON(data []byte) {
+	entity := repo.InitEntity()
+	entity.UpdateFromJSON(data, false)
 	repo.Add(entity)
 }
 
