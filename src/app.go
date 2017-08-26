@@ -9,11 +9,12 @@ import (
 	// "net/http/pprof"
 	// "runtime/pprof"
 	"sync"
+	"unsafe"
 )
 
 var (
-	ADDR      = flag.String("addr", ":80", "TCP address to listen to")
-	DATA_PATH = flag.String("data", "/tmp/data/data.zip", "Initial data zipfile path")
+	ADDR     = flag.String("addr", ":80", "TCP address to listen to")
+	DATA_DIR = flag.String("data", "/tmp/data/", "Directory with zipfile path")
 )
 
 var (
@@ -42,6 +43,10 @@ func initVars() {
 		Mutex:      sync.RWMutex{}}
 }
 
+func bstring(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
 func entity_repo(entity_kind_len int) EntityRepo {
 	switch entity_kind_len {
 	case 5: //"users":
@@ -57,7 +62,6 @@ func entity_repo(entity_kind_len int) EntityRepo {
 func main() {
 	flag.Parse()
 	initVars()
-	loadInitialData()
 
 	// r := http.NewServeMux()
 	// r.HandleFunc("/debug/pprof/", pprof.Index)
@@ -66,6 +70,8 @@ func main() {
 	// r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	// r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	// go http.ListenAndServe(":8080", r)
+
+	loadInitialData()
 
 	// defer profile.Start().Stop()
 	startWebServer()
