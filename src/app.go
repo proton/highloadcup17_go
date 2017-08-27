@@ -7,6 +7,24 @@ import (
 	"time"
 )
 
+func main() {
+	flag.Parse()
+	initVars()
+	loadInitialData()
+	startWebServer()
+}
+
+// func main() {
+// 	flag.Parse()
+// 	initVars()
+// 	// defer profile.Start(profile.CPUProfile).Stop()
+// 	// defer profile.Start(profile.MutexProfile).Stop()
+// 	// defer profile.Start(profile.BlockProfile).Stop()
+// 	loadInitialData()
+// 	defer profile.Start(profile.MemProfile).Stop()
+// 	startWebServer()
+// }
+
 var (
 	ADDR         = flag.String("addr", ":80", "TCP address to listen to")
 	DATAZIP_PATH = flag.String("zip", "/tmp/data/data.zip", "Zipfile path")
@@ -51,22 +69,3 @@ func entity_repo(entity_kind_len int) EntityRepo {
 	}
 	return nil
 }
-
-func main() {
-	flag.Parse()
-	initVars()
-	loadInitialData()
-	startWebServer()
-}
-
-// func main() {
-// 	flag.Parse()
-// 	initVars()
-// 	profile.Start(profile.MemProfile)
-// 	// profile.Start(profile.CPUProfile)
-// 	// profile.Start(profile.MutexProfile)
-// 	// profile.Start(profile.BlockProfile)
-// 	loadInitialData()
-// 	// defer profile.Start().Stop()
-// 	startWebServer()
-// }
