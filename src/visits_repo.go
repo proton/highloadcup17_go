@@ -14,9 +14,9 @@ func (repo *VisitsRepo) InitEntity() *Visit {
 	return &entity
 }
 
-func (repo *VisitsRepo) CreateFromJSON(data []byte) {
+func (repo *VisitsRepo) Create(data []byte) {
 	entity := repo.InitEntity()
-	entity.UpdateFromJSON(data, false)
+	entity.Update(data, false)
 	repo.Add(entity)
 }
 

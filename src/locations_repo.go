@@ -14,9 +14,9 @@ func (repo *LocationsRepo) InitEntity() *Location {
 	return &Location{}
 }
 
-func (repo *LocationsRepo) CreateFromJSON(data []byte) {
+func (repo *LocationsRepo) Create(data []byte) {
 	entity := repo.InitEntity()
-	entity.UpdateFromJSON(data, false)
+	entity.Update(data, false)
 	repo.Add(entity)
 }
 

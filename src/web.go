@@ -166,10 +166,10 @@ func processEntityUpdate(ctx *fasthttp.RequestCtx, entity Entity) {
 		render400(ctx)
 		return
 	}
-	// entity.UpdateFromJSON(data, true)
+	// entity.Update(data, true)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go entity.UpdateFromJSON(data, true)
+	go entity.Update(data, true)
 }
 
 func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
@@ -178,10 +178,10 @@ func processEntityCreate(ctx *fasthttp.RequestCtx, repo EntityRepo) {
 		render400(ctx)
 		return
 	}
-	// repo.CreateFromJSON(data)
+	// repo.Create(data)
 	renderEmpty(ctx)
 	// ctx.SetConnectionClose() // is it really helps?
-	go repo.CreateFromJSON(data)
+	go repo.Create(data)
 }
 
 func renderEntity(ctx *fasthttp.RequestCtx, entity Entity) {

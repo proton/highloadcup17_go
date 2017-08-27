@@ -32,7 +32,7 @@ var (
 	}
 )
 
-func (entity *User) UpdateFromJSON(data []byte, lock bool) {
+func (entity *User) Update(data []byte, lock bool) {
 	if lock {
 		entity.Mutex.Lock()
 	}

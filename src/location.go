@@ -29,7 +29,7 @@ var (
 	}
 )
 
-func (entity *Location) UpdateFromJSON(data []byte, lock bool) {
+func (entity *Location) Update(data []byte, lock bool) {
 	if lock {
 		entity.Mutex.Lock()
 	}

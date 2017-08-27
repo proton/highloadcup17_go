@@ -36,7 +36,7 @@ var (
 	}
 )
 
-func (entity *Visit) UpdateFromJSON(data []byte, lock bool) {
+func (entity *Visit) Update(data []byte, lock bool) {
 	sync_user := false
 	sync_location := false
 	if lock {

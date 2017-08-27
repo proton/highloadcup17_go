@@ -53,7 +53,7 @@ func loadJsons() {
 			data, _ = ioutil.ReadFile(file_path)
 
 			jsonparser.ArrayEach(data, func(object_data []byte, dataType jsonparser.ValueType, offset int, err error) {
-				repo.CreateFromJSON(object_data)
+				repo.Create(object_data)
 			}, entity_kind)
 		}
 	}

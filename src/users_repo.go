@@ -14,9 +14,9 @@ func (repo *UsersRepo) InitEntity() *User {
 	return &User{}
 }
 
-func (repo *UsersRepo) CreateFromJSON(data []byte) {
+func (repo *UsersRepo) Create(data []byte) {
 	entity := repo.InitEntity()
-	entity.UpdateFromJSON(data, false)
+	entity.Update(data, false)
 	repo.Add(entity)
 }
 
