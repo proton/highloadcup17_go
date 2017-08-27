@@ -12,6 +12,8 @@ import (
 )
 
 func loadInitialData() {
+	var data []byte
+
 	fmt.Println("DataLoading: starting")
 
 	file_path := *DATAZIP_PATH
@@ -24,10 +26,16 @@ func loadInitialData() {
 		}
 	}
 
+	file_path = *DATA_DIR + "options.txt"
+	data, _ = ioutil.ReadFile(file_path)
+	ts_str := strings.Split(string(data), "\n")[0]
+	ts, _ := strconv.Atoi(ts_str)
+	InitialTime = time.Unix(int64(ts), 0)
+	fmt.Println("DataLoading: set timestamp to", InitialTime)
+
 	files, _ := ioutil.ReadDir(*DATA_DIR)
 
 	entity_kinds := []string{"users", "locations", "visits"}
-	var data []byte
 
 	for _, entity_kind := range entity_kinds {
 		repo := entity_repo(len(entity_kind))
@@ -47,13 +55,6 @@ func loadInitialData() {
 			}, entity_kind)
 		}
 	}
-
-	file_path = *DATA_DIR + "options.txt"
-	data, _ = ioutil.ReadFile(file_path)
-	ts_str := strings.Split(string(data), "\n")[0]
-	ts, _ := strconv.Atoi(ts_str)
-	InitialTime = time.Unix(int64(ts), 0)
-	fmt.Println("DataLoading: set timestamp to", InitialTime)
 
 	fmt.Println("DataLoading: finished")
 }
