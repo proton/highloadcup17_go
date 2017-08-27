@@ -9,6 +9,7 @@ import (
 	// "net/http/pprof"
 	// "runtime/pprof"
 	"sync"
+	"time"
 )
 
 var (
@@ -23,6 +24,7 @@ var (
 	Visits          VisitsRepo
 	UsersVisits     EntityVisitsRepo
 	LocationsVisits EntityVisitsRepo
+	InitialTime     time.Time
 )
 
 func initVars() {

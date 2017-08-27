@@ -8,7 +8,6 @@ import (
 	"io"
 	"strconv"
 	"sync"
-	"time"
 )
 
 type Location struct {
@@ -105,22 +104,6 @@ func (entity *Location) writeJSON(w io.Writer) {
 	entity.Mutex.RLock()
 	defer entity.Mutex.RUnlock()
 	w.Write(entity.Json)
-}
-
-// func BirthDateToAge(BirthDate int) int {
-// 	now := int(time.Now().Unix())
-// 	age_ts := int64(now - BirthDate)
-// 	age := int(time.Unix(age_ts, 0).Year() - 1970)
-// 	return age
-// }
-
-func AgeToBirthday(age *uint32) *int32 {
-	if age == nil {
-		return nil
-	}
-	birthday := time.Now().AddDate(-int(*age), 0, 0)
-	birthday_timestamp := int32(birthday.Unix())
-	return &birthday_timestamp
 }
 
 func (entity *Location) checkVisit(visit *Visit, fromDate *uint32, toDate *uint32, fromAgeBirthday *int32, toAgeBirthday *int32, gender *string) bool {

@@ -1,11 +1,27 @@
 package main
 
 import (
+	"time"
 	"unsafe"
 )
 
 func bstring(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
+}
+
+func BirthDateToAge(BirthDate int) int {
+	age_ts := InitialTime.Unix() - int64(BirthDate)
+	age := int(time.Unix(age_ts, 0).Year() - 1970)
+	return age
+}
+
+func AgeToBirthday(age *uint32) *int32 {
+	if age == nil {
+		return nil
+	}
+	birthday := InitialTime.AddDate(-int(*age), 0, 0)
+	birthday_timestamp := int32(birthday.Unix())
+	return &birthday_timestamp
 }
 
 // from https://github.com/valyala/fasthttp/blob/master/bytesconv.go
