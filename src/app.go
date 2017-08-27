@@ -29,6 +29,7 @@ var (
 	ADDR         = flag.String("addr", ":80", "TCP address to listen to")
 	DATAZIP_PATH = flag.String("zip", "/tmp/data/data.zip", "Zipfile path")
 	DATA_DIR     = flag.String("data", "/", "Directory with extacted jsons")
+	OPTIONS_PATH = flag.String("options", "/tmp/data/options.txt", "options file path")
 )
 
 var (
