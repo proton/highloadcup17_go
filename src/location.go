@@ -197,8 +197,8 @@ func (repo *LocationsRepo) FindEntity(id uint32) (Entity, bool) {
 	return repo.Find(id)
 }
 
-func find_location(entity_id_str *string) (*Location, bool) {
-	entity_id_int, error := strconv.Atoi(*entity_id_str)
+func find_location(entity_id_str []bytes) (*Location, bool) {
+	entity_id_int, error := strconv.Atoi(bstring(entity_id_str))
 	if error == nil {
 		entity_id := uint32(entity_id_int)
 		return Locations.Find(entity_id)

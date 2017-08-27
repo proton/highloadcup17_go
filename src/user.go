@@ -214,8 +214,8 @@ func (repo *UsersRepo) FindEntity(id uint32) (Entity, bool) {
 	return repo.Find(id)
 }
 
-func find_user(entity_id_str *string) (*User, bool) {
-	entity_id_int, error := strconv.Atoi(*entity_id_str)
+func find_user(entity_id_str []bytes) (*User, bool) {
+	entity_id_int, error := strconv.Atoi(bstring(entity_id_str))
 	if error == nil {
 		entity_id := uint32(entity_id_int)
 		return Users.Find(entity_id)

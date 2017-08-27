@@ -68,10 +68,10 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	entity_id_str := string(path[2])
+	entity_id_str := path[2]
 
 	if path_len == 3 {
-		entity, ok := find_entity(repo, &entity_id_str)
+		entity, ok := find_entity(repo, entity_id_str)
 		if ok {
 			if http_method_is_get {
 				renderEntity(ctx, entity)
@@ -82,13 +82,13 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 		}
 	} else if path_len == 4 && http_method_is_get {
 		if bytes.Equal(path[3], B_VISITS) {
-			user, ok := find_user(&entity_id_str)
+			user, ok := find_user(entity_id_str)
 			if ok {
 				processUserVisits(ctx, user)
 				return
 			}
 		} else if bytes.Equal(path[3], B_AVG) {
-			location, ok := find_location(&entity_id_str)
+			location, ok := find_location(entity_id_str)
 			if ok {
 				processLocationAvgs(ctx, location)
 				return
