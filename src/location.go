@@ -126,7 +126,7 @@ func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *uint32, 
 		w.WriteString("{\"avg\": 0}")
 	} else {
 		avg := float64(marks_sum) / float64(marks_count)
-		avg_str := fmt.Sprintf("%.5f", avg)
+		avg_str := fmt.Sprintf("%f", RoundPlus(avg, 5))
 
 		w.WriteString("{\"avg\": ")
 		w.WriteString(avg_str)

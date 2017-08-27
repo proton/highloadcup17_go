@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"time"
 	"unsafe"
 )
@@ -22,6 +23,15 @@ func AgeToBirthday(age *uint32) *int32 {
 	birthday := InitialTime.AddDate(-int(*age), 0, 0)
 	birthday_timestamp := int32(birthday.Unix())
 	return &birthday_timestamp
+}
+
+func Round(f float64) float64 {
+	return math.Floor(f + .5)
+}
+
+func RoundPlus(f float64, places int) float64 {
+	shift := math.Pow(10, float64(places))
+	return Round(f*shift) / shift
 }
 
 // from https://github.com/valyala/fasthttp/blob/master/bytesconv.go
