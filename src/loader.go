@@ -28,6 +28,10 @@ func loadInitialData() {
 
 	file_path = *DATA_DIR + "options.txt"
 	data, _ = ioutil.ReadFile(file_path)
+	fmt.Println(file_path)
+	fmt.Println(data)
+	fmt.Println(string(data))
+	fmt.Println(strings.Split(string(data), "\n"))
 	ts_str := strings.Split(string(data), "\n")[0]
 	ts, _ := strconv.Atoi(ts_str)
 	InitialTime = time.Unix(int64(ts), 0)
