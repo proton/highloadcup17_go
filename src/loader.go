@@ -11,11 +11,7 @@ import (
 	"time"
 )
 
-func loadInitialData() {
-	var data []byte
-
-	fmt.Println("DataLoading: starting")
-
+func unpackDataZip() {
 	file_path := *DATAZIP_PATH
 	if _, err := os.Stat(file_path); !os.IsNotExist(err) {
 		fmt.Println("DataLoading: extracting zip file")
@@ -25,13 +21,19 @@ func loadInitialData() {
 			fmt.Println(err)
 		}
 	}
+}
 
-	file_path = *OPTIONS_PATH
-	data, _ = ioutil.ReadFile(file_path)
+func loadInitialTime() {
+	file_path := *OPTIONS_PATH
+	data, _ := ioutil.ReadFile(file_path)
 	ts_str := strings.Split(string(data), "\n")[0]
 	ts, _ := strconv.Atoi(ts_str)
 	InitialTime = time.Unix(int64(ts), 0)
 	fmt.Println("DataLoading: set timestamp to", InitialTime)
+}
+
+func loadJsons() {
+	var data []byte
 
 	files, _ := ioutil.ReadDir(*DATA_DIR)
 
@@ -46,7 +48,7 @@ func loadInitialData() {
 			}
 			fmt.Println("DataLoading: loading", f.Name())
 
-			file_path = *DATA_DIR + f.Name()
+			file_path := *DATA_DIR + f.Name()
 
 			data, _ = ioutil.ReadFile(file_path)
 
@@ -55,6 +57,12 @@ func loadInitialData() {
 			}, entity_kind)
 		}
 	}
+}
 
+func loadInitialData() {
+	fmt.Println("DataLoading: starting")
+	unpackDataZip()
+	loadInitialTime()
+	loadJsons()
 	fmt.Println("DataLoading: finished")
 }
