@@ -141,11 +141,12 @@ func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *uint32, to
 
 	w.WriteString("{\"visits\": [")
 	first := true
+	enc := ffjson.NewEncoder(w)
 	for _, visit := range visits {
 		if first == false {
 			w.WriteString(",")
 		}
-		ffjson.NewEncoder(w).Encode(visit.ToView())
+		enc.Encode(visit.ToView())
 		first = false
 	}
 	w.WriteString("]}")
