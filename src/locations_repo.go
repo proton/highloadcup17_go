@@ -5,13 +5,20 @@ import (
 	"sync"
 )
 
+var (
+	LOCATIONS_REPO_COLLECTION_SIZE = uint32(1010000)
+)
+
 type LocationsRepo struct {
-	Collection map[uint32]*Location
-	Mutex      sync.RWMutex
+	Collection []*Location
+	// Mutex         sync.RWMutex
+	MapCollection map[uint32]*Location
+	MapMutex      sync.RWMutex
 }
 
 func (repo *LocationsRepo) InitEntity() *Location {
-	return &Location{}
+	entity := Location{}
+	return &entity
 }
 
 func (repo *LocationsRepo) Create(data []byte) {
@@ -21,16 +28,25 @@ func (repo *LocationsRepo) Create(data []byte) {
 }
 
 func (repo *LocationsRepo) Add(entity *Location) {
-	repo.Mutex.Lock()
-	repo.Collection[entity.Id] = entity
-	repo.Mutex.Unlock()
+	if entity.Id < LOCATIONS_REPO_COLLECTION_SIZE {
+		repo.Collection[entity.Id] = entity
+	} else {
+		repo.MapMutex.Lock()
+		defer repo.MapMutex.Unlock()
+		repo.MapCollection[entity.Id] = entity
+	}
 }
 
 func (repo *LocationsRepo) Find(id uint32) (*Location, bool) {
-	repo.Mutex.RLock()
-	defer repo.Mutex.RUnlock()
-	entity, ok := repo.Collection[id]
-	return entity, ok
+	if id < LOCATIONS_REPO_COLLECTION_SIZE {
+		entity := repo.Collection[id]
+		return entity, (entity != nil)
+	} else {
+		repo.MapMutex.Lock()
+		defer repo.MapMutex.Unlock()
+		entity, ok := repo.MapCollection[id]
+		return entity, ok
+	}
 }
 
 func (repo *LocationsRepo) FindEntity(id uint32) (Entity, bool) {

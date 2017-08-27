@@ -43,14 +43,15 @@ var (
 
 func initVars() {
 	Users = UsersRepo{
-		Collection: make(map[uint32]*User),
-		Mutex:      sync.RWMutex{}}
+		Collection:    make([]*User, USERS_REPO_COLLECTION_SIZE),
+		MapCollection: make(map[uint32]*User),
+		MapMutex:      sync.RWMutex{}}
 	Locations = LocationsRepo{
-		Collection: make(map[uint32]*Location),
-		Mutex:      sync.RWMutex{}}
+		Collection:    make([]*Location, LOCATIONS_REPO_COLLECTION_SIZE),
+		MapCollection: make(map[uint32]*Location),
+		MapMutex:      sync.RWMutex{}}
 	Visits = VisitsRepo{
-		Collection: make([]*Visit, VISITS_REPO_COLLECTION_SIZE),
-		// Mutex:         sync.RWMutex{},
+		Collection:    make([]*Visit, VISITS_REPO_COLLECTION_SIZE),
 		MapCollection: make(map[uint32]*Visit),
 		MapMutex:      sync.RWMutex{}}
 	UsersVisits = EntityVisitsRepo{
