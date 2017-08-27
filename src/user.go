@@ -27,32 +27,6 @@ type UsersRepo struct {
 	Mutex      sync.RWMutex
 }
 
-// func (entity *User) Update(data *JsonData, lock bool) {
-// 	if lock {
-// 		entity.Mutex.Lock()
-// 	}
-// 	for key, value := range *data {
-// 		switch key {
-// 		case "id":
-// 			entity.Id = int(value.(float64))
-// 		case "email":
-// 			entity.Email = value.(string)
-// 		case "first_name":
-// 			entity.FirstName = value.(string)
-// 		case "last_name":
-// 			entity.LastName = value.(string)
-// 		case "gender":
-// 			entity.Gender = value.(string)
-// 		case "birth_date":
-// 			entity.BirthDate = int(value.(float64))
-// 		}
-// 	}
-// 	entity.cacheJSON()
-// 	if lock {
-// 		entity.Mutex.Unlock()
-// 	}
-// }
-
 var (
 	USER_JSON_PATHS = [][]string{
 		[]string{"id"},
@@ -184,12 +158,6 @@ func (entity *User) WriteVisitsJson(w *fasthttp.RequestCtx, fromDate *uint32, to
 func (repo *UsersRepo) InitEntity() *User {
 	return &User{}
 }
-
-// func (repo *UsersRepo) Create(data *JsonData) {
-// 	entity := repo.InitEntity()
-// 	entity.Update(data, false)
-// 	repo.Add(entity)
-// }
 
 func (repo *UsersRepo) CreateFromJSON(data []byte) {
 	entity := repo.InitEntity()

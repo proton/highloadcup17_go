@@ -25,30 +25,6 @@ type LocationsRepo struct {
 	Mutex      sync.RWMutex
 }
 
-// func (entity *Location) Update(data *JsonData, lock bool) {
-// 	if lock {
-// 		entity.Mutex.Lock()
-// 	}
-// 	for key, value := range *data {
-// 		switch key {
-// 		case "id":
-// 			entity.Id = int(value.(float64))
-// 		case "place":
-// 			entity.Place = value.(string)
-// 		case "country":
-// 			entity.Country = value.(string)
-// 		case "city":
-// 			entity.City = value.(string)
-// 		case "distance":
-// 			entity.Distance = int(value.(float64))
-// 		}
-// 	}
-// 	entity.cacheJSON()
-// 	if lock {
-// 		entity.Mutex.Unlock()
-// 	}
-// }
-
 var (
 	LOCATION_JSON_PATHS = [][]string{
 		[]string{"id"},
@@ -167,12 +143,6 @@ func (entity *Location) WriteAvgsJson(w *fasthttp.RequestCtx, fromDate *uint32, 
 func (repo *LocationsRepo) InitEntity() *Location {
 	return &Location{}
 }
-
-// func (repo *LocationsRepo) Create(data *JsonData) {
-// 	entity := repo.InitEntity()
-// 	entity.Update(data, false)
-// 	repo.Add(entity)
-// }
 
 func (repo *LocationsRepo) CreateFromJSON(data []byte) {
 	entity := repo.InitEntity()

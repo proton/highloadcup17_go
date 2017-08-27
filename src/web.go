@@ -156,19 +156,6 @@ func processUserVisits(ctx *fasthttp.RequestCtx, user *User) {
 	render400(ctx)
 }
 
-// func loadJSON(ctx *fasthttp.RequestCtx) *JsonData {
-// 	var data JsonData
-// 	body := ctx.PostBody()
-// 	if bytes.Contains(body, NULL_CHECK) {
-// 		return nil
-// 	}
-// 	err := json.Unmarshal(body, &data)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	return &data
-// }
-
 func validateJSON(data []byte) bool {
 	return len(data) > 0 && !bytes.Contains(data, NULL_CHECK)
 }
