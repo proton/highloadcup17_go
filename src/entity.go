@@ -17,7 +17,7 @@ type EntityRepo interface {
 	FindEntity(id uint32) (Entity, bool)
 }
 
-func find_entity(repo EntityRepo, entity_id_str []bytes) (Entity, bool) {
+func find_entity(repo EntityRepo, entity_id_str []byte) (Entity, bool) {
 	entity_id_int, error := strconv.Atoi(bstring(entity_id_str))
 	if error == nil {
 		entity_id := uint32(entity_id_int)
