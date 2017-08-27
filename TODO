@@ -18,8 +18,6 @@ Tip 2: Pooling the buffer
 
 On servers where you have a lot of concurrent encoding going on, you can hand back the byte buffer you get from json.Marshal once you are done using it. An example could look like this:
 
-import "github.com/pquerna/ffjson/ffjson"
-
 func Encode(item interface{}, out io.Writer) {
 	// Encode
 	buf, err := ffjson.Marshal(&item)
@@ -30,3 +28,5 @@ func Encode(item interface{}, out io.Writer) {
 	// We are now no longer need the buffer so we pool it. 
 	ffjson.Pool(buf)
 }
+
+fix AVG!!!

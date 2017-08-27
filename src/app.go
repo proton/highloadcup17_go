@@ -2,12 +2,7 @@ package main
 
 import (
 	"flag"
-	// "github.com/pquerna/ffjson/ffjson"
-	// "encoding/json"
-	// "github.com/pkg/profile"
-	// "net/http"
-	// "net/http/pprof"
-	// "runtime/pprof"
+	"github.com/pkg/profile"
 	"sync"
 	"time"
 )
@@ -60,24 +55,18 @@ func entity_repo(entity_kind_len int) EntityRepo {
 func main() {
 	flag.Parse()
 	initVars()
-
-	// r := http.NewServeMux()
-	// r.HandleFunc("/debug/pprof/", pprof.Index)
-	// r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	// r.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	// r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	// r.HandleFunc("/debug/pprof/trace", pprof.Trace)
-	// go http.ListenAndServe(":8080", r)
-
 	loadInitialData()
-
-	// defer func() {
-	// 	if fd, err := os.Create(`pprof.mem`); err == nil {
-	// 		pprof.WriteHeapProfile(fd)
-	// 		fd.Close()
-	// 	}
-	// }()
-
-	// defer profile.Start().Stop()
 	startWebServer()
 }
+
+// func main() {
+// 	flag.Parse()
+// 	initVars()
+// 	profile.Start(profile.MemProfile)
+// 	// profile.Start(profile.CPUProfile)
+// 	// profile.Start(profile.MutexProfile)
+// 	// profile.Start(profile.BlockProfile)
+// 	loadInitialData()
+// 	// defer profile.Start().Stop()
+// 	startWebServer()
+// }
