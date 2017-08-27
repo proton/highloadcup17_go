@@ -6,22 +6,22 @@ import (
 )
 
 type EntityVisitsRepo struct {
-	Collection map[uint32]*VisitsRepo
+	Collection map[uint32]*VisitsMRepo
 	Mutex      sync.RWMutex
 }
 
-func (repo *EntityVisitsRepo) findVisitsRepo(entity_id uint32) *VisitsRepo {
+func (repo *EntityVisitsRepo) findVisitsRepo(entity_id uint32) *VisitsMRepo {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
 	var entity, _ = repo.Collection[entity_id]
 	return entity
 }
 
-func (repo *EntityVisitsRepo) initVisitsRepo(entity_id uint32) *VisitsRepo {
+func (repo *EntityVisitsRepo) initVisitsRepo(entity_id uint32) *VisitsMRepo {
 	repo.Mutex.Lock()
 	visits_repo := repo.Collection[entity_id]
 	if visits_repo == nil {
-		visits_repo = &VisitsRepo{
+		visits_repo = &VisitsMRepo{
 			Collection: make(map[uint32]*Visit),
 			Mutex:      sync.RWMutex{}}
 	}
