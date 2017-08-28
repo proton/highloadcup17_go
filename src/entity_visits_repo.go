@@ -17,23 +17,23 @@ func (repo *EntityVisitsRepo) findVisitsRepo(entity_id uint32) *VisitsMRepo {
 	return entity
 }
 
-func (repo *EntityVisitsRepo) initVisitsRepo(entity_id uint32) *VisitsMRepo {
+func (repo *EntityVisitsRepo) findOrInitVisitsRepo(entity_id uint32) *VisitsMRepo {
 	repo.Mutex.Lock()
+	defer repo.Mutex.Unlock()
 	visits_repo := repo.Collection[entity_id]
 	if visits_repo == nil {
 		visits_repo = &VisitsMRepo{
 			Collection: make(map[uint32]*Visit),
 			Mutex:      sync.RWMutex{}}
+		repo.Collection[entity_id] = visits_repo
 	}
-	repo.Collection[entity_id] = visits_repo
-	repo.Mutex.Unlock()
 	return visits_repo
 }
 
 func (repo *EntityVisitsRepo) addVisit(entity_id uint32, visit *Visit) {
 	visits_repo := repo.findVisitsRepo(entity_id)
 	if visits_repo == nil {
-		visits_repo = repo.initVisitsRepo(entity_id)
+		visits_repo = repo.findOrInitVisitsRepo(entity_id)
 	}
 	visits_repo.Add(visit)
 }
