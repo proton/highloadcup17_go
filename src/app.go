@@ -9,7 +9,6 @@ import (
 
 func main() {
 	flag.Parse()
-	initVars()
 	loadInitialData()
 	startWebServer()
 }
@@ -30,18 +29,7 @@ var (
 	DATAZIP_PATH = flag.String("zip", "/tmp/data/data.zip", "Zipfile path")
 	DATA_DIR     = flag.String("data", "/", "Directory with extacted jsons")
 	OPTIONS_PATH = flag.String("options", "/tmp/data/options.txt", "options file path")
-)
 
-var (
-	Users           UsersRepo
-	Locations       LocationsRepo
-	Visits          VisitsRepo
-	UsersVisits     EntityVisitsRepo
-	LocationsVisits EntityVisitsRepo
-	InitialTime     time.Time
-)
-
-func initVars() {
 	Users = UsersRepo{
 		Collection:    make([]*User, USERS_REPO_COLLECTION_SIZE),
 		MapCollection: make(map[uint32]*User),
@@ -60,7 +48,9 @@ func initVars() {
 	LocationsVisits = EntityVisitsRepo{
 		Collection: make(map[uint32]*VisitsMRepo),
 		Mutex:      sync.RWMutex{}}
-}
+
+	InitialTime time.Time
+)
 
 func entity_repo(entity_kind_len int) EntityRepo {
 	switch entity_kind_len {

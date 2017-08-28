@@ -12,15 +12,4 @@ https://habrahabr.ru/company/badoo/blog/301990/
 
 user/visits хранить как сортированный массив!!!
 
-Можно еще действительно перейти с map на array, как хотел
-array вместо map 1_000_002 - visits
-cap(array)
-
-//
-init on load: + capacity
-
-makeRepo
-
-
-Вообще может можно выиграть храня 100000 как константу и печатая ответ в формате ("%.0f.%.0f", avg, Round(avg * 10000))
-Даже не надо Round, достаточно (avg - int(avg)) * 100000 + 0.5
+profile visits.Create
