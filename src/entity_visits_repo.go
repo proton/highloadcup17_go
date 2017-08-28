@@ -12,6 +12,14 @@ type EntityVisitsRepo struct {
 	MapMutex      sync.RWMutex
 }
 
+func makeEntityVisitsRepo(lenth uint32) EntityVisitsRepo {
+	return EntityVisitsRepo{
+		Collection:    make([]*VisitsMRepo, lenth),
+		Mutex:         sync.RWMutex{},
+		MapCollection: make(map[uint32]*VisitsMRepo),
+		MapMutex:      sync.RWMutex{}}
+}
+
 func (repo *EntityVisitsRepo) findVisitsRepo(entity_id uint32) *VisitsMRepo {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()

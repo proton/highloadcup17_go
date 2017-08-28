@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	// "github.com/pkg/profile"
-	"sync"
 	"time"
 )
 
@@ -30,28 +29,11 @@ var (
 	DATA_DIR     = flag.String("data", "/", "Directory with extacted jsons")
 	OPTIONS_PATH = flag.String("options", "/tmp/data/options.txt", "options file path")
 
-	Users = UsersRepo{
-		Collection:    make([]*User, USERS_REPO_COLLECTION_SIZE),
-		MapCollection: make(map[uint32]*User),
-		MapMutex:      sync.RWMutex{}}
-	Locations = LocationsRepo{
-		Collection:    make([]*Location, LOCATIONS_REPO_COLLECTION_SIZE),
-		MapCollection: make(map[uint32]*Location),
-		MapMutex:      sync.RWMutex{}}
-	Visits = VisitsRepo{
-		Collection:    make([]*Visit, VISITS_REPO_COLLECTION_SIZE),
-		MapCollection: make(map[uint32]*Visit),
-		MapMutex:      sync.RWMutex{}}
-	UsersVisits = EntityVisitsRepo{
-		Collection:    make([]*VisitsMRepo, USERS_REPO_COLLECTION_SIZE),
-		Mutex:         sync.RWMutex{},
-		MapCollection: make(map[uint32]*VisitsMRepo),
-		MapMutex:      sync.RWMutex{}}
-	LocationsVisits = EntityVisitsRepo{
-		Collection:    make([]*VisitsMRepo, LOCATIONS_REPO_COLLECTION_SIZE),
-		Mutex:         sync.RWMutex{},
-		MapCollection: make(map[uint32]*VisitsMRepo),
-		MapMutex:      sync.RWMutex{}}
+	Users           = makeUsersRepo(USERS_REPO_COLLECTION_SIZE)
+	Locations       = makeLocationsRepo(LOCATIONS_REPO_COLLECTION_SIZE)
+	Visits          = makeVisitsRepo(VISITS_REPO_COLLECTION_SIZE)
+	UsersVisits     = makeEntityVisitsRepo(USERS_REPO_COLLECTION_SIZE)
+	LocationsVisits = makeEntityVisitsRepo(LOCATIONS_REPO_COLLECTION_SIZE)
 
 	InitialTime time.Time
 )
