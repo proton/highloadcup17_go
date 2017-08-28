@@ -43,11 +43,15 @@ var (
 		MapCollection: make(map[uint32]*Visit),
 		MapMutex:      sync.RWMutex{}}
 	UsersVisits = EntityVisitsRepo{
-		Collection: make(map[uint32]*VisitsMRepo),
-		Mutex:      sync.RWMutex{}}
+		Collection:    make([]*VisitsMRepo, USERS_REPO_COLLECTION_SIZE),
+		Mutex:         sync.RWMutex{},
+		MapCollection: make(map[uint32]*VisitsMRepo),
+		MapMutex:      sync.RWMutex{}}
 	LocationsVisits = EntityVisitsRepo{
-		Collection: make(map[uint32]*VisitsMRepo),
-		Mutex:      sync.RWMutex{}}
+		Collection:    make([]*VisitsMRepo, LOCATIONS_REPO_COLLECTION_SIZE),
+		Mutex:         sync.RWMutex{},
+		MapCollection: make(map[uint32]*VisitsMRepo),
+		MapMutex:      sync.RWMutex{}}
 
 	InitialTime time.Time
 )

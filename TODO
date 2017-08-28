@@ -13,5 +13,3 @@ https://habrahabr.ru/company/badoo/blog/301990/
 user/visits хранить как сортированный массив!!!
 
 profile visits.Create
-
-EntityVisitsRepo as array[map]
