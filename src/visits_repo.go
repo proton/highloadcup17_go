@@ -27,25 +27,25 @@ func (repo *VisitsRepo) Create(data []byte) {
 }
 
 func (repo *VisitsRepo) Add(entity *Visit) {
-	if entity.Id < VISITS_REPO_COLLECTION_SIZE {
-		repo.Collection[entity.Id] = entity
-	} else {
-		repo.MapMutex.Lock()
-		defer repo.MapMutex.Unlock()
-		repo.MapCollection[entity.Id] = entity
-	}
+	// if entity.Id < VISITS_REPO_COLLECTION_SIZE {
+	repo.Collection[entity.Id] = entity
+	// } else {
+	// 	repo.MapMutex.Lock()
+	// 	defer repo.MapMutex.Unlock()
+	// 	repo.MapCollection[entity.Id] = entity
+	// }
 }
 
 func (repo *VisitsRepo) Find(id uint32) (*Visit, bool) {
-	if id < VISITS_REPO_COLLECTION_SIZE {
-		entity := repo.Collection[id]
-		return entity, (entity != nil)
-	} else {
-		repo.MapMutex.Lock()
-		defer repo.MapMutex.Unlock()
-		entity, ok := repo.MapCollection[id]
-		return entity, ok
-	}
+	// if id < VISITS_REPO_COLLECTION_SIZE {
+	entity := repo.Collection[id]
+	return entity, (entity != nil)
+	// } else {
+	// 	repo.MapMutex.Lock()
+	// 	defer repo.MapMutex.Unlock()
+	// 	entity, ok := repo.MapCollection[id]
+	// 	return entity, ok
+	// }
 }
 
 func (repo *VisitsRepo) FindEntity(id uint32) (Entity, bool) {
