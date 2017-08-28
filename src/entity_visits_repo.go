@@ -6,25 +6,19 @@ import (
 )
 
 type EntityVisitsRepo struct {
-	Collection    []*VisitsMRepo
-	Mutex         sync.RWMutex
-	MapCollection map[uint32]*VisitsMRepo
-	MapMutex      sync.RWMutex
+	Collection []*VisitsMRepo
+	Mutex      sync.RWMutex
 }
 
 func makeEntityVisitsRepo(lenth uint32) EntityVisitsRepo {
 	return EntityVisitsRepo{
-		Collection:    make([]*VisitsMRepo, lenth),
-		Mutex:         sync.RWMutex{},
-		MapCollection: make(map[uint32]*VisitsMRepo),
-		MapMutex:      sync.RWMutex{}}
+		Collection: make([]*VisitsMRepo, lenth),
+		Mutex:      sync.RWMutex{}}
 }
 
 func (repo *EntityVisitsRepo) findVisitsRepo(entity_id uint32) *VisitsMRepo {
 	repo.Mutex.RLock()
 	defer repo.Mutex.RUnlock()
-	// var entity, _ = repo.Collection[entity_id]
-	// return entity
 	return repo.Collection[entity_id]
 }
 
