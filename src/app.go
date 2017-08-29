@@ -14,11 +14,12 @@ func main() {
 
 // func main() {
 // 	flag.Parse()
-// 	initVars()
 // 	// defer profile.Start(profile.CPUProfile).Stop()
 // 	// defer profile.Start(profile.MutexProfile).Stop()
 // 	// defer profile.Start(profile.BlockProfile).Stop()
+// 	// defer profile.Start(profile.MemProfile).Stop()
 // 	loadInitialData()
+// 	time.Sleep(3 * time.Second)
 // 	defer profile.Start(profile.MemProfile).Stop()
 // 	startWebServer()
 // }
