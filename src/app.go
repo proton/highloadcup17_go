@@ -3,12 +3,16 @@ package main
 import (
 	"flag"
 	// "github.com/pkg/profile"
+	"runtime"
+	"runtime/debug"
 	"time"
 )
 
 func main() {
 	flag.Parse()
 	loadInitialData()
+	runtime.GC()
+	debug.SetGCPercent(-1)
 	startWebServer()
 }
 
