@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	// "github.com/pkg/profile"
+	"log"
+	"os/exec"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -11,6 +13,7 @@ import (
 func main() {
 	flag.Parse()
 	loadInitialData()
+	go heatServer()
 	runtime.GC()
 	debug.SetGCPercent(-1)
 	startWebServer()
@@ -53,4 +56,15 @@ func entity_repo(entity_kind_len int) EntityRepo {
 		return &Visits
 	}
 	return nil
+}
+
+func heatServer() {
+	time.Sleep(5 * time.Second)
+	log.Println("Starting heater")
+	cmd := exec.Command("./heater", "--addr", *ADDR)
+	err := cmd.Run()
+	if err != nil {
+		log.Println(err)
+	}
+	time.Sleep(time.Second)
 }

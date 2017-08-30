@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/buger/jsonparser"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -14,11 +14,11 @@ import (
 func unpackDataZip() {
 	file_path := *DATAZIP_PATH
 	if _, err := os.Stat(file_path); !os.IsNotExist(err) {
-		fmt.Println("DataLoading: extracting zip file")
+		log.Println("DataLoading: extracting zip file")
 		cmd := exec.Command("unzip", file_path, "-d", *DATA_DIR)
 		err = cmd.Run()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}
 }
@@ -29,7 +29,7 @@ func loadInitialTime() {
 	ts_str := strings.Split(string(data), "\n")[0]
 	ts, _ := strconv.Atoi(ts_str)
 	InitialTime = time.Unix(int64(ts), 0)
-	fmt.Println("DataLoading: set timestamp to", InitialTime)
+	log.Println("DataLoading: set timestamp to", InitialTime)
 }
 
 func loadJsons() {
@@ -46,7 +46,7 @@ func loadJsons() {
 			if !strings.Contains(f.Name(), entity_kind) {
 				continue
 			}
-			fmt.Println("DataLoading: loading", f.Name())
+			log.Println("DataLoading: loading", f.Name())
 
 			file_path := *DATA_DIR + f.Name()
 
@@ -60,9 +60,9 @@ func loadJsons() {
 }
 
 func loadInitialData() {
-	fmt.Println("DataLoading: starting")
+	log.Println("DataLoading: starting")
 	unpackDataZip()
 	loadInitialTime()
 	loadJsons()
-	fmt.Println("DataLoading: finished")
+	log.Println("DataLoading: finished")
 }

@@ -1,5 +1,6 @@
 push.sh
 app
+heater
 cpu.png
 curl-format.txt
 *.pprof

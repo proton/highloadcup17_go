@@ -2,17 +2,16 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	"log"
 	//"github.com/pquerna/ffjson/ffjson"
 	// "encoding/json"
 	"github.com/valyala/fasthttp"
-	"log"
 	// "runtime/debug"
 	// "time"
 )
 
 func startWebServer() {
-	fmt.Println("Webserver: starting")
+	log.Println("Webserver: starting")
 	h := requestHandler
 	// h := timeoutHandler
 	// h = fasthttp.CompressHandler(h)

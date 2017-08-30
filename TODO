@@ -7,3 +7,5 @@ user/visits хранить как сортированный массив!!!
 минимизируем mutex'ы + bench
 
 heater - -concurrent 2 -time 30s
+
+один хрен 80% - сеть :(
