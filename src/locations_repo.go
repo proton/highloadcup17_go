@@ -5,19 +5,18 @@ import (
 	"sync"
 )
 
-var (
+const (
 	LOCATIONS_REPO_COLLECTION_SIZE = uint32(810000)
 )
 
 type LocationsRepo struct {
-	Collection    []*Location
+	Collection    [LOCATIONS_REPO_COLLECTION_SIZE]*Location
 	MapCollection map[uint32]*Location
 	MapMutex      sync.RWMutex
 }
 
-func makeLocationsRepo(lenth uint32) LocationsRepo {
+func makeLocationsRepo() LocationsRepo {
 	return LocationsRepo{
-		Collection:    make([]*Location, lenth),
 		MapCollection: make(map[uint32]*Location),
 		MapMutex:      sync.RWMutex{}}
 }

@@ -37,9 +37,9 @@ var (
 	DATA_DIR     = flag.String("data", "/", "Directory with extacted jsons")
 	OPTIONS_PATH = flag.String("options", "/tmp/data/options.txt", "options file path")
 
-	Users           = makeUsersRepo(USERS_REPO_COLLECTION_SIZE)
-	Locations       = makeLocationsRepo(LOCATIONS_REPO_COLLECTION_SIZE)
-	Visits          = makeVisitsRepo(VISITS_REPO_COLLECTION_SIZE)
+	Users           = makeUsersRepo()
+	Locations       = makeLocationsRepo()
+	Visits          = makeVisitsRepo()
 	UsersVisits     = makeEntityVisitsRepo(USERS_REPO_COLLECTION_SIZE)
 	LocationsVisits = makeEntityVisitsRepo(LOCATIONS_REPO_COLLECTION_SIZE)
 

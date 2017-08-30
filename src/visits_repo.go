@@ -4,19 +4,18 @@ import (
 	"sync"
 )
 
-var (
+const (
 	VISITS_REPO_COLLECTION_SIZE = uint32(10100000)
 )
 
 type VisitsRepo struct {
-	Collection    []*Visit
+	Collection    [VISITS_REPO_COLLECTION_SIZE]*Visit
 	MapCollection map[uint32]*Visit
 	MapMutex      sync.RWMutex
 }
 
-func makeVisitsRepo(lenth uint32) VisitsRepo {
+func makeVisitsRepo() VisitsRepo {
 	return VisitsRepo{
-		Collection:    make([]*Visit, lenth),
 		MapCollection: make(map[uint32]*Visit),
 		MapMutex:      sync.RWMutex{}}
 }
